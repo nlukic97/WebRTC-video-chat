@@ -94,6 +94,10 @@ peer.on('close',()=>{
     socket.emit('peerLeft',myId)
 })
 
+peer.on('disconnected',()=>{
+    console.log('Someone has just left the peer server');
+})
+
 
 //------------ I have no comment the previous peer.on(call) and uncomment this to work for 1 user
 // peer.on('call',call=>{ //---> ovde se gubi nesto
