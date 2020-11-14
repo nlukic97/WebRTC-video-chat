@@ -46,7 +46,7 @@ io.on('connection',socket=>{
             console.log('Socekt on disconnect activated!');
             console.log(`${userId} has exited the browser`);
             socket.to(roomId).broadcast.emit('removeUserVideo', userId)
-            socket.disconnect()
+            // socket.disconnect()
         }
     })
     
