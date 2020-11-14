@@ -10,12 +10,15 @@ const connectToNewUser = (userId, stream) =>{
     const video = document.createElement('video')
     call.on('stream', uservideoStream => {
         console.log('got stream of other person')
-        addVideoStream(video, uservideoStream)
+        addVideoStream(video, uservideoStream, userId)
     })
 }
 
-const addVideoStream = (video, stream) =>{
+const addVideoStream = (video, stream, vidId) =>{
     video.srcObject = stream;
+    if(vidId){
+        video.setAttibute('id',vidId)
+    }
     video.addEventListener('loadedmetadata',()=>{
         video.play()
     })
@@ -53,8 +56,8 @@ navigator.mediaDevices.getUserMedia({
         connectToNewUser(userId, stream)
     })
 
-    socket.on('removeUserVideo',userId=>{ //doesnt work
-        console.log('Function to remove users added video goes here');
+    socket.on('removeUserVideo',disconnectedPeerId=>{ //doesnt work
+        console.log(`Remove video id: ${disconnectedPeerId}`);
     })
 })
 
