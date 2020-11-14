@@ -53,7 +53,7 @@ navigator.mediaDevices.getUserMedia({
         connectToNewUser(userId, stream)
     })
 
-    socket.on('removeUserVideo',userId=>{
+    socket.on('removeUserVideo',userId=>{ //doesnt work
         console.log('Function to remove users added video goes here');
     })
 })
@@ -70,10 +70,12 @@ peer.on('open', id=>{
 
 peer.on('close',()=>{
     console.log('peer destroyed');
+    console.log(peer.id);
     console.log(`Peer destroyed : ${peer.destroyed}`);
     console.log(`Here are your connections: `);
     console.log(peer.connections);
     console.log('----------------------------');
+    socket.emit('peerLeft',myId)
 })
 
 peer.on('connection',()=>{
@@ -87,7 +89,6 @@ peer.on('connection',()=>{
 
 document.getElementById('destroyPeer').addEventListener('click',()=>{
     peer.destroy()
-    socket.emit('peerLeft',myId)
 })
 
 

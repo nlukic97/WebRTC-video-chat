@@ -31,6 +31,11 @@ io.on('connection',socket=>{
     socket.on('disconnect',(socket)=>{
         console.log(`${socket.id} left the room`);
     })
+
+    socket.on('peerLeft',id=>{
+        console.log(`Peer ${id} left.`);
+        socket.to(roomId).broadcast.emit('removeUserVideo',id)
+    })
 })
 server.listen((process.env.PORT || port),()=>{
     console.log(`Server started at http://localhost:${port}`);
