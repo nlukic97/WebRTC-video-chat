@@ -1,6 +1,6 @@
 let express = require('express')
 let app = express()
-let port = 3030;
+let port = 443;
 let server = require('http').createServer(app) //or createServer  ???
 const io = require('socket.io')(server)
 const {v4: uuidv4} = require('uuid')
@@ -13,12 +13,13 @@ app.use(express.static('./views'))
 
 //peer 
 app.use('/peerjs',peerServer) 
+
 app.get('/',(req,res)=>{
     res.redirect(`/${uuidv4()}`)
 })
 
 app.get('/:room',(req,res)=>{
-    res.render('room',{roomId: req.params.room})
+    res.render('room',{roomId: req.params.room}) //does this tell the server that we want the files in here to be shown ? read more on this
 })
 
 io.on('connection',socket=>{

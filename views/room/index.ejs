@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script src="https://kit.fontawesome.com/279db593be.js" crossorigin="anonymous"></script>
     <script>
         const ROOM_ID = '<%= roomId %>'
     </script>
@@ -16,9 +17,14 @@
     script src for dev:
         script.js?v=<%= new Date().getTime() %>    
     -->
-    <div id="video-grid">
-        <button id="destroyPeer">Leave conversation</button>
-    </div>          
+    <div id="main">
+        <div id="video-grid"></div>
+        <div id="buttons">
+            <div id="toggleAudio"><i class="fas fa-microphone"></i></div>
+            <div id="toggleVideo"><i class="fas fa-video"></i></div>
+            <div id="destroyPeer">Exit call</div>
+        </div> 
+    </div>     
     <script src="script.js?v=21"></script> <!-- So we defined the static files of the server so we can use it here-->
 </body>
 </html>

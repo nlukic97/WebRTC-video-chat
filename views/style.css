@@ -1,3 +1,8 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 #video-grid {
     display: flex;
     justify-content: center;
@@ -8,4 +13,60 @@ video {
     height:300px;
     width: 400px;
     object-fit: cover;
+}
+
+#main {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    background: rgb(31, 30, 30);
+}
+
+#buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding:12px 0;
+    background-color: rgb(44, 43, 43);
+    border-top:1px solid rgba(248, 248, 248, 0.219);
+}
+
+#buttons div {
+    padding: 12px 25px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 18px;
+    color: #fff;
+    border-radius: 10px;
+    border:1px solid rgba(248, 248, 248, 0.219);
+}
+
+#buttons div:hover {
+    cursor: pointer;
+}
+
+#buttons div:active{
+    transform: scale(0.95);
+}
+
+#destroyPeer {
+    background-color: rgb(177, 14, 14);
+}
+
+#destroyPeer:hover{
+    background-color: rgb(197, 22, 22);
+}
+
+#toggleVideo{
+    background-color: rgb(58, 57, 57);
+}
+#toggleVideo:hover {
+    background-color: rgb(78, 77, 77);
+}
+
+#toggleAudio {
+    background-color: rgb(58, 57, 57);
+}
+
+#toggleAudio:hover {
+    background-color: rgb(78, 77, 77);
 }

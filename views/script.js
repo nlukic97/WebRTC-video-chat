@@ -25,6 +25,41 @@ const addVideoStream = (video, stream, vidId) =>{
     videoGrid.append(video)
 }
 
+//muting my audio
+const toggleAudio = () =>{
+    console.log(myVideoStream);
+    const enabled = myVideoStream.getAudioTracks()[0].enabled
+    if(enabled){
+        myVideoStream.getAudioTracks()[0].enabled = false
+        document.getElementById('toggleAudio').firstChild.className = 'fas fa-microphone-alt-slash';
+    } else {
+        myVideoStream.getAudioTracks()[0].enabled = true
+        document.getElementById('toggleAudio').firstChild.className = 'fas fa-microphone-alt';
+    }
+}
+
+document.getElementById('toggleAudio').addEventListener('click',()=>{
+    toggleAudio()
+})
+
+
+//muting my video
+const toggleVideo = () =>{
+    const enabled = myVideoStream.getVideoTracks()[0].enabled;
+    if(enabled){
+        myVideoStream.getVideoTracks()[0].enabled = false
+        document.getElementById('toggleVideo').firstChild.className = 'fas fa-video-slash';
+    } else {
+        myVideoStream.getVideoTracks()[0].enabled = true
+        document.getElementById('toggleVideo').firstChild.className = 'fas fa-video';
+    }
+}
+
+document.getElementById('toggleVideo').addEventListener('click',()=>{
+    toggleVideo()
+})
+
+
 //connecting to peer from client
 var peer = new Peer(undefined,{
     path:'/peerjs',
@@ -100,5 +135,16 @@ peer.on('close',()=>{
 
 peer.on('disconnected',()=>{
     console.log('Peer disconnected');
+})
+
+//----- styling
+const setHeight = () =>{
+    var height = window.innerHeight
+    document.getElementById('main').style = `height:${height}px`;
+}
+setHeight()
+
+window.addEventListener('resize',()=>{
+    setHeight()
 })
 
