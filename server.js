@@ -27,7 +27,7 @@ io.on('connection',socket=>{
         socket.join(roomId)
         socket.to(roomId).broadcast.emit('user-connected',userId)
 
-        var exit;
+        var leftVideoChat;
 
         socket.on('peerLeft',id=>{
             console.log(`Peer ${id} has left the video call`);
