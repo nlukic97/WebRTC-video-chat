@@ -72,10 +72,6 @@ peer.on('open', id=>{
     myId = id;
 })
 
-peer.on('close',()=>{
-    console.log(`Peer destroyed : ${peer.destroyed}. Letting Everyone else on in the room know.`);
-    socket.emit('peerLeft',myId)
-})
 
 peer.on('connection',()=>{
     console.log('peer connection established');
@@ -92,7 +88,12 @@ document.getElementById('destroyPeer').addEventListener('click',()=>{
         node.remove()
     })
 })
-
+//once disconnected, this happens:
+peer.on('close',()=>{
+    console.log(`Peer destroyed : ${peer.destroyed}. Letting Everyone else on in the room know.`);
+    socket.emit('peerLeft',myId)
+    socket.disconnect()
+})
 
 
 //------------ I have no comment the previous peer.on(call) and uncomment this to work for 1 user

@@ -26,28 +26,19 @@ io.on('connection',socket=>{
     socket.on('join-room',(roomId, userId)=>{
         socket.join(roomId)
         socket.to(roomId).broadcast.emit('user-connected',userId)
-
-        var leftVideoChat = false;
-
+        
         socket.on('peerLeft',id=>{
-           if(leftVideoChat == false){
             console.log(`Peer ${id} has left the video call`);
-            socket.to(roomId).broadcast.emit('removeUserVideo',id)
-            leftVideoChat = true;
-           }
-            
+            socket.to(roomId).broadcast.emit('removeUserVideo',id)            
         })
         
         socket.on('disconnect',()=>{ //there might be a better way
             console.log(`${userId} has exited the browser`);
-            if(leftVideoChat === false){
-                socket.to(roomId).broadcast.emit('removeUserVideo', userId)
-                leftVideoChat = true;
-            }
+            socket.to(roomId).broadcast.emit('removeUserVideo', userId)
         })
     })
     
-
+    
     
 })
 server.listen((process.env.PORT || port),()=>{
