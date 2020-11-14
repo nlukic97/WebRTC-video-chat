@@ -86,13 +86,9 @@ peer.on('connection',()=>{
     console.log('peer connection established');
 })
 
-// document.getElementById('disconnectPeer').addEventListener('click',()=>{
-//     peer.disconnect()
-//     socket.emit('peerLeft',myId)
-// })
-
 document.getElementById('destroyPeer').addEventListener('click',()=>{
     peer.destroy()
+    document.querySelector('video').remove()
 })
 
 
