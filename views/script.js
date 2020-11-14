@@ -90,7 +90,7 @@ document.getElementById('destroyPeer').addEventListener('click',()=>{
     peer.destroy()
 
     //removing all videos for client who is leaving.
-    var videoNodes = document.querySelector('video')
+    var videoNodes = document.querySelectorAll('video')
 
     console.log(videoNodes)
 })
