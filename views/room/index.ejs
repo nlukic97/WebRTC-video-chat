@@ -17,10 +17,11 @@
         <% if (typeof (roomId) == 'undefined') { %>
             <% } else { %>
                 <h2>Room id: <%= roomId %></h2>
+                <h2>Room id: <%= new Date().getTime() %></h2>
                 <% } %> -->
     <div id="video-grid">
         <button id="destroyPeer">Leave conversation</button>
     </div>          
-    <script src="script.js?v=1245"></script> <!-- So we defined the static files of the server so we can use it here-->
+    <script src="script.js?v=<%= new Date().getTime() %>"></script> <!-- So we defined the static files of the server so we can use it here-->
 </body>
 </html>
