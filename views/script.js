@@ -46,12 +46,12 @@ navigator.mediaDevices.getUserMedia({
         })
     })
 
-    peer.on('disconnect',()=>{
-        console.log('peer disconnect');
+    peer.on('disconnected',()=>{
+        console.log('peer disconnected');
     })
     
-    peer.on('close',()=>{
-        console.log('peer disconnect');
+    peer.on('connection',()=>{
+        console.log('peer connection established');
     })
     
     socket.on('user-connected',(userId)=>{
