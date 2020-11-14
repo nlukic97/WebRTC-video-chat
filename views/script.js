@@ -45,14 +45,6 @@ navigator.mediaDevices.getUserMedia({
             addVideoStream(video,userVideoStream)
         })
     })
-
-    peer.on('disconnected',()=>{
-        console.log('peer disconnected');
-    })
-    
-    peer.on('connection',()=>{
-        console.log('peer connection established');
-    })
     
     socket.on('user-connected',(userId)=>{
         // console.log(`Another user has joined. Their id: ${userId}. Contacting them...`);
@@ -63,6 +55,26 @@ navigator.mediaDevices.getUserMedia({
 peer.on('open', id=>{
     // console.log(`Your id: ${id} and room id:${ROOM_ID}. Emiting 'join-room'`);
     socket.emit('join-room', ROOM_ID, id)
+})
+
+peer.on('disconnected',()=>{
+    console.log('peer disconnected');
+})
+
+peer.on('disconnected',()=>{
+    console.log('peer disconnected');
+})
+
+peer.on('connection',()=>{
+    console.log('peer connection established');
+})
+
+document.getElementById('disconnectPeer').addEventListener('click',()=>{
+    peer.disconnect()
+})
+
+document.getElementById('destroyPeer').addEventListener('click',()=>{
+    peer.destroy()
 })
 
 
