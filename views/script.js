@@ -58,6 +58,7 @@ navigator.mediaDevices.getUserMedia({
 
     socket.on('removeUserVideo',disconnectedPeerId=>{ //doesnt work
         console.log(`Remove video id: ${disconnectedPeerId}`);
+        document.getElementById(disconnectedPeerId).remove()
     })
 })
 
