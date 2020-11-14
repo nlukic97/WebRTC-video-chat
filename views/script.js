@@ -47,7 +47,7 @@ navigator.mediaDevices.getUserMedia({
         call.on('stream',userVideoStream=>{
             console.log(`User video stream received: ${userVideoStream}. Adding to our box`);
             console.log(`Adding user ${call.peer}`);
-            addVideoStream(video,userVideoStream)
+            addVideoStream(video,userVideoStream, call.peer)
         })
     })
     
