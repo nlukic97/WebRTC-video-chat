@@ -63,6 +63,7 @@ navigator.mediaDevices.getUserMedia({
 
     socket.on('forceDisconnect',msg=>{
         console.log(`You have been disconnected. Msg: ${msg}`);
+        socket.close()
     })
 })
 
