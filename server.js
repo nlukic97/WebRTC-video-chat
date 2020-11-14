@@ -35,7 +35,8 @@ io.on('connection',socket=>{
         socket.on('disconnect',()=>{
             console.log(`${userId} left the room`);
             socket.emit('closeYourPeer')
-            socket.to(roomId).broadcast.emit('removeUserVideo',userId)
+            socket.to(roomId).broadcast.emit('removeUserVideo',this.userId)
+            console.log(`User id who disconnected: ${this.userId}`);
         })
     })
     
