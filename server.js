@@ -34,7 +34,7 @@ io.on('connection',socket=>{
         const userGone = () =>{
             console.log('Socekt on disconnect activated!');
             console.log(`${userId} has exited the browser`);
-            socket.to(roomId).broadcast.emit('removeUserVideo', userId)
+            // socket.to(roomId).broadcast.emit('removeUserVideo', userId)
             
             socket.emit('forceDisconnect','Bye kind sir !') //disconnecting the dude who clicked 'leave' from the server
         }
@@ -42,6 +42,7 @@ io.on('connection',socket=>{
         //disconnecting people who exited browser
         socket.on('disconnect',()=>{ //issues here. If user disconnects via peer, we use "userGone" 
         //tell other users he is gone even though peer is closed and that they should delete his video box.
+            socket.to(roomId).broadcast.emit('removeUserVideo', userId)
             console.log(`User with the id ${userId} has exited via browser`);
         })
     })
