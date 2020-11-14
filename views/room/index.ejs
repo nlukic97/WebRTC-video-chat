@@ -13,15 +13,12 @@
 </head>
 <body>
     <!-- <h1>Whats up sir</h1>
-        
-        <% if (typeof (roomId) == 'undefined') { %>
-            <% } else { %>
-                <h2>Room id: <%= roomId %></h2>
-                <h2>Room id: <%= new Date().getTime() %></h2>
-                <% } %> -->
+    script src for dev:
+        script.js?v=<%= new Date().getTime() %>    
+    -->
     <div id="video-grid">
         <button id="destroyPeer">Leave conversation</button>
     </div>          
-    <script src="script.js?v=<%= new Date().getTime() %>"></script> <!-- So we defined the static files of the server so we can use it here-->
+    <script src="script.js?v=21"></script> <!-- So we defined the static files of the server so we can use it here-->
 </body>
 </html>

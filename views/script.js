@@ -32,7 +32,7 @@ var peer = new Peer(undefined,{
     port:'443'
 })
 
-let myVideoStream; //the videoStream is now available to all
+let myVideoStream;
 
 navigator.mediaDevices.getUserMedia({
     video:true,
@@ -41,7 +41,7 @@ navigator.mediaDevices.getUserMedia({
     myVideoStream = stream;
     addVideoStream(myVideo,stream)
     
-    peer.on('call',call=>{ //---> ovde se gubi nesto
+    peer.on('call',call=>{
         call.answer(stream)
         const video = document.createElement('video')
         call.on('stream',userVideoStream=>{
@@ -56,19 +56,21 @@ navigator.mediaDevices.getUserMedia({
         connectToNewUser(userId, stream)
     })
 
-    socket.on('removeUserVideo',disconnectedPeerId=>{ //doesnt work
+    //removing video of user who has disconnected from websocket
+    socket.on('removeUserVideo',disconnectedPeerId=>{
         console.log(`Remove video id: ${disconnectedPeerId}`);
         document.getElementById(disconnectedPeerId).remove()
     })
 
+    // -DISCONNECT FUNCTION - disconnecting this user from websocket. This will trigger the on.disconnected listener on the server.
+    //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
     socket.on('forceDisconnect',msg=>{
-        console.log(`You have been disconnected. Msg: ${msg}`);
         socket.close()
+        console.log(`You have been disconnected from websocket`);
     })
 })
 
 peer.on('open', id=>{
-    // console.log(`Your id: ${id} and room id:${ROOM_ID}. Emiting 'join-room'`);
     socket.emit('join-room', ROOM_ID, id)
     myId = id;
 })
@@ -89,7 +91,8 @@ document.getElementById('destroyPeer').addEventListener('click',()=>{
         node.remove()
     })
 })
-//once disconnected, this happens:
+
+//once disconnected from peer, we tell the server this. The server will tell disconnect this user from websocket (see -DISCONNECT FUNCTION - )
 peer.on('close',()=>{
     console.log(`Peer destroyed : ${peer.destroyed}. Letting Everyone else on in the room know.`);
     socket.emit('peerLeft',myId)
@@ -98,18 +101,4 @@ peer.on('close',()=>{
 peer.on('disconnected',()=>{
     console.log('Peer disconnected');
 })
-
-
-//------------ I have no comment the previous peer.on(call) and uncomment this to work for 1 user
-// peer.on('call',call=>{ //---> ovde se gubi nesto
-//     console.log(`Someone is calling. Call info: ${call}...answering...`);
-//     console.log(call);
-//     call.answer(myVideoStream)
-//     const video = document.createElement('video')
-//     call.on('stream',uservideoStream=>{
-//         console.log(`User video stream received: ${uservideoStream}. Adding to our box`);
-//         addVideoStream(video,uservideoStream)
-//     }) //---- somewhere here we may need to call the guy who first send out the signal
-// })
-//------------
 
