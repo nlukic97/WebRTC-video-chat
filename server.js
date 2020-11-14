@@ -27,16 +27,21 @@ io.on('connection',socket=>{
         socket.join(roomId)
         socket.to(roomId).broadcast.emit('user-connected',userId)
 
+        var exit;
+
         socket.on('peerLeft',id=>{
             console.log(`Peer ${id} has left the video call`);
             socket.to(roomId).broadcast.emit('removeUserVideo',id)
+            leftVideoChat = true;
+            
         })
         
         socket.on('disconnect',()=>{ //there might be a better way
             console.log(`${userId} has exited the browser`);
-            socket.emit('closeYourPeer') //i  might not need this at all
-
-            socket.to(roomId).broadcast.emit('removeUserVideo', userId)
+            if(!leftVideoChat){
+                socket.emit('closeYourPeer') //i  might not need this at all
+                socket.to(roomId).broadcast.emit('removeUserVideo', userId)
+            }
         })
     })
     
