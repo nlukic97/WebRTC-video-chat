@@ -17,7 +17,7 @@ const connectToNewUser = (userId, stream) =>{
 const addVideoStream = (video, stream, vidId) =>{
     video.srcObject = stream;
     if(vidId){
-        video.setAttibute('id',vidId)
+        video.id = vidId
     }
     video.addEventListener('loadedmetadata',()=>{
         video.play()
