@@ -32,11 +32,11 @@ io.on('connection',socket=>{
             socket.to(roomId).broadcast.emit('removeUserVideo',id)
         })
         
-        socket.on('disconnect',()=>{
-            console.log(`${userId} left the room`);
-            socket.emit('closeYourPeer')
-            socket.to(roomId).broadcast.emit('removeUserVideo',this.userId)
-            console.log(`User id who disconnected: ${this.userId}`);
+        socket.on('disconnect',(userId)=>{
+            console.log(`${userId} left the room`,userId=>{
+                socket.to(roomId).broadcast.emit('removeUserVideo',userId)
+            });
+            //socket.emit('closeYourPeer') //should I do this ? Is this necessary since the user has left ?
         })
     })
     
