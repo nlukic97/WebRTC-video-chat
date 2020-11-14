@@ -1,4 +1,5 @@
 const socket = io('/')
+var myId; //later to be used to signal to others
 
 const videoGrid = document.getElementById('video-grid')
 const myVideo = document.createElement('video')
@@ -42,6 +43,7 @@ navigator.mediaDevices.getUserMedia({
         const video = document.createElement('video')
         call.on('stream',userVideoStream=>{
             console.log(`User video stream received: ${userVideoStream}. Adding to our box`);
+            console.log(`Adding user ${call.peer}`);
             addVideoStream(video,userVideoStream)
         })
     })
@@ -50,18 +52,23 @@ navigator.mediaDevices.getUserMedia({
         // console.log(`Another user has joined. Their id: ${userId}. Contacting them...`);
         connectToNewUser(userId, stream)
     })
+
+    socket.on('removeUserVideo',userId=>{
+        console.log('Function to remove users added video goes here');
+    })
 })
 
 peer.on('open', id=>{
     // console.log(`Your id: ${id} and room id:${ROOM_ID}. Emiting 'join-room'`);
     socket.emit('join-room', ROOM_ID, id)
+    myId = id;
 })
 
 // peer.on('disconnected',()=>{
 //     console.log('peer disconnected');
 // })
 
-peer.on('disconnected',()=>{
+peer.on('close',()=>{
     console.log('peer destroyed');
     console.log(`Peer destroyed : ${peer.destroyed}`);
     console.log(`Here are your connections: `);
@@ -73,12 +80,14 @@ peer.on('connection',()=>{
     console.log('peer connection established');
 })
 
-document.getElementById('disconnectPeer').addEventListener('click',()=>{
-    peer.disconnect()
-})
+// document.getElementById('disconnectPeer').addEventListener('click',()=>{
+//     peer.disconnect()
+//     socket.emit('peerLeft',myId)
+// })
 
 document.getElementById('destroyPeer').addEventListener('click',()=>{
     peer.destroy()
+    socket.emit('peerLeft',myId)
 })
 
 
