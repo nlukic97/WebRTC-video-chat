@@ -95,7 +95,7 @@ peer.on('close',()=>{
 })
 
 peer.on('disconnected',()=>{
-    console.log('Someone has just left the peer server');
+    console.log('Peer disconnected');
 })
 
 
