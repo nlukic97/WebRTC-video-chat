@@ -72,17 +72,8 @@ peer.on('open', id=>{
     myId = id;
 })
 
-// peer.on('disconnected',()=>{
-//     console.log('peer disconnected');
-// })
-
 peer.on('close',()=>{
-    console.log('peer destroyed');
-    console.log(peer.id);
-    console.log(`Peer destroyed : ${peer.destroyed}`);
-    console.log(`Here are your connections: `);
-    console.log(peer.connections);
-    console.log('----------------------------');
+    console.log(`Peer destroyed : ${peer.destroyed}. Letting Everyone else on in the room know.`);
     socket.emit('peerLeft',myId)
 })
 

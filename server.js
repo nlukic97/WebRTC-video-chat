@@ -11,8 +11,8 @@ const peerServer = ExpressPeerServer(server,{
 app.set('view engine', 'ejs') //what is the ejs module for ? ejs library?
 app.use(express.static('./views'))
 
-
-app.use('/peerjs',peerServer) //peer 
+//peer 
+app.use('/peerjs',peerServer) 
 app.get('/',(req,res)=>{
     res.redirect(`/${uuidv4()}`)
 })
@@ -28,15 +28,15 @@ io.on('connection',socket=>{
         socket.to(roomId).broadcast.emit('user-connected',userId)
 
         socket.on('peerLeft',id=>{
-            console.log(`Peer ${id} left.`);
+            console.log(`Peer ${id} has left the video call`);
             socket.to(roomId).broadcast.emit('removeUserVideo',id)
         })
         
-        socket.on('disconnect',()=>{
-            console.log(`${userId} left the room`);
-            socket.emit('closeYourPeer')
+        socket.on('disconnect',()=>{ //there might be a better way
+            console.log(`${userId} has exited the browser`);
+            socket.emit('closeYourPeer') //i  might not need this at all
+
             socket.to(roomId).broadcast.emit('removeUserVideo', userId)
-            console.log(`User id who disconnected: ${userId}`);
         })
     })
     
