@@ -26,16 +26,28 @@ io.on('connection',socket=>{
     socket.on('join-room',(roomId, userId)=>{
         socket.join(roomId)
         socket.to(roomId).broadcast.emit('user-connected',userId)
-        
+
         socket.on('peerLeft',id=>{
-            console.log(`Peer ${id} has left the video call`);
-            socket.to(roomId).broadcast.emit('removeUserVideo',id)            
+            // console.log(`Peer ${id} has left the video call`);
+            // socket.to(roomId).broadcast.emit('removeUserVideo',id)      
+            // socket.disconnect()      
+            userGone()   
         })
         
         socket.on('disconnect',()=>{ //there might be a better way
+            // console.log('Socekt on disconnect activated!');
+            // console.log(`${userId} has exited the browser`);
+            // socket.to(roomId).broadcast.emit('removeUserVideo', userId)
+            // socket.disconnect()   
+            userGone()   
+        })
+
+        const userGone = () =>{
+            console.log('Socekt on disconnect activated!');
             console.log(`${userId} has exited the browser`);
             socket.to(roomId).broadcast.emit('removeUserVideo', userId)
-        })
+            socket.disconnect()
+        }
     })
     
     
