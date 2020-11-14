@@ -60,6 +60,10 @@ navigator.mediaDevices.getUserMedia({
         console.log(`Remove video id: ${disconnectedPeerId}`);
         document.getElementById(disconnectedPeerId).remove()
     })
+
+    socket.on('closeYourPeer',()=>{
+        peer.destroy()
+    })
 })
 
 peer.on('open', id=>{
