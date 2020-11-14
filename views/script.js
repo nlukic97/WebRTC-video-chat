@@ -45,6 +45,14 @@ navigator.mediaDevices.getUserMedia({
             addVideoStream(video,userVideoStream)
         })
     })
+
+    peer.on('disconnect',()=>{
+        console.log('peer disconnect');
+    })
+    
+    peer.on('close',()=>{
+        console.log('peer disconnect');
+    })
     
     socket.on('user-connected',(userId)=>{
         // console.log(`Another user has joined. Their id: ${userId}. Contacting them...`);
@@ -57,13 +65,6 @@ peer.on('open', id=>{
     socket.emit('join-room', ROOM_ID, id)
 })
 
-peer.on('disconnect',()=>{
-    console.log('peer disconnect');
-})
-
-peer.on('close',()=>{
-    console.log('peer closed');
-})
 
 
 //------------ I have no comment the previous peer.on(call) and uncomment this to work for 1 user
