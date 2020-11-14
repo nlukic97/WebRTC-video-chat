@@ -88,7 +88,12 @@ peer.on('connection',()=>{
 
 document.getElementById('destroyPeer').addEventListener('click',()=>{
     peer.destroy()
-    document.querySelector('video').remove()
+
+    //removing all videos for client who is leaving.
+    var videoNodes = document.querySelector('video')
+    videoNodes.forEach(node => {
+        node.remove()
+    });
 })
 
 
