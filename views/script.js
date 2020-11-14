@@ -55,7 +55,15 @@ navigator.mediaDevices.getUserMedia({
 peer.on('open', id=>{
     // console.log(`Your id: ${id} and room id:${ROOM_ID}. Emiting 'join-room'`);
     socket.emit('join-room', ROOM_ID, id)
-})  
+})
+
+peer.on('disconnect',()=>{
+    console.log('peer disconnect');
+})
+
+peer.on('close',()=>{
+    console.log('peer closed');
+})
 
 
 //------------ I have no comment the previous peer.on(call) and uncomment this to work for 1 user
