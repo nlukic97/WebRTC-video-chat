@@ -25,7 +25,7 @@ const addVideoStream = (video, stream) =>{
 var peer = new Peer(undefined,{
     path:'/peerjs',
     host:'/',
-    port:'433'
+    port:'443'
 })
 
 let myVideoStream; //the videoStream is now available to all
