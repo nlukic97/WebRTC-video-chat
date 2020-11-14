@@ -61,8 +61,8 @@ navigator.mediaDevices.getUserMedia({
         document.getElementById(disconnectedPeerId).remove()
     })
 
-    socket.on('closeYourPeer',()=>{
-        peer.destroy()
+    socket.on('forceDisconnect',msg=>{
+        console.log(`You have been disconnected. Msg: ${msg}`);
     })
 })
 
