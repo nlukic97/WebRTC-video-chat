@@ -31,11 +31,12 @@ io.on('connection',socket=>{
             console.log(`Peer ${id} left.`);
             socket.to(roomId).broadcast.emit('removeUserVideo',id)
         })
+
+        socket.on('disconnect',()=>{
+            console.log(`${userId} left the room`);
+        })
     })
     
-    socket.on('disconnect',(socket)=>{
-        console.log(`${socket.id} left the room`);
-    })
 
     
 })

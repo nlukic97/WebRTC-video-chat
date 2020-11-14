@@ -86,6 +86,8 @@ peer.on('connection',()=>{
     console.log('peer connection established');
 })
 
+
+//client click to end call and stays in browser
 document.getElementById('destroyPeer').addEventListener('click',()=>{
     peer.destroy()
 
