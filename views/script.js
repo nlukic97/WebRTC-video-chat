@@ -57,12 +57,16 @@ peer.on('open', id=>{
     socket.emit('join-room', ROOM_ID, id)
 })
 
-peer.on('disconnected',()=>{
-    console.log('peer disconnected');
-})
+// peer.on('disconnected',()=>{
+//     console.log('peer disconnected');
+// })
 
 peer.on('disconnected',()=>{
-    console.log('peer disconnected');
+    console.log('peer destroyed');
+    console.log(`Peer destroyed : ${peer.destroyed}`);
+    console.log(`Here are your connections: `);
+    console.log(peer.connections);
+    console.log('----------------------------');
 })
 
 peer.on('connection',()=>{
