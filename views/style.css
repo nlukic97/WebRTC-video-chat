@@ -2,6 +2,18 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: rgb(31, 30, 30);
+}
+
+.red {
+    color: red!important;
+}
+
+#canvas{
+    display: flex;
+    height:100%;
+    flex-direction: column;
+    justify-content: center;
 }
 #video-grid {
     display: flex;
@@ -11,15 +23,16 @@ body {
 
 video {
     height:300px;
-    width: 400px;
+    /* width: 400px; */
     object-fit: cover;
 }
 
 #main {
     display: flex;
+    height: 100vh;
     justify-content: space-between;
     flex-direction: column;
-    background: rgb(31, 30, 30);
+    background-color: rgb(31, 30, 30);
 }
 
 #buttons {
@@ -60,7 +73,7 @@ video {
     background-color: rgb(58, 57, 57);
 }
 #toggleVideo:hover {
-    background-color: rgb(78, 77, 77);
+    background-color: rgb(65, 64, 64);
 }
 
 #toggleAudio {
@@ -68,5 +81,5 @@ video {
 }
 
 #toggleAudio:hover {
-    background-color: rgb(78, 77, 77);
+    background-color: rgb(65, 64, 64);
 }

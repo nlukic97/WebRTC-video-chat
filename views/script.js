@@ -23,6 +23,7 @@ const addVideoStream = (video, stream, vidId) =>{
         video.play()
     })
     videoGrid.append(video)
+    setHeightOfVideos() //added
 }
 
 //muting my audio
@@ -94,7 +95,12 @@ navigator.mediaDevices.getUserMedia({
     //removing video of user who has disconnected from websocket
     socket.on('removeUserVideo',disconnectedPeerId=>{
         console.log(`Remove video id: ${disconnectedPeerId}`);
-        document.getElementById(disconnectedPeerId).remove()
+
+        var vidElement = document.getElementById(disconnectedPeerId) //delete element only if it exists. Error happens without this
+        if(element){
+            element.remove()
+            setHeightOfVideos()
+        }
     })
 
     // -DISCONNECT FUNCTION - disconnecting this user from websocket. This will trigger the on.disconnected listener on the server.
@@ -138,13 +144,23 @@ peer.on('disconnected',()=>{
 })
 
 //----- styling
-const setHeight = () =>{
-    var height = window.innerHeight
-    document.getElementById('main').style = `height:${height}px`;
+const setHeightOfVideos = () =>{
+    var height = document.getElementById('canvas').clientHeight
+    console.log(height);
+    var videos = document.querySelectorAll('video')
+    videos.forEach(video=>{
+        if(videos.length <=2){
+            video.style.height = height/2 + 'px'
+        }
+        else if(videos.length > 2 && videos.length <=6){
+            video.style.height = height/3 + 'px'
+        } else if(videos.length >=7){
+            video.style.height = height/4 + 'px'
+        }
+    })
 }
-setHeight()
 
 window.addEventListener('resize',()=>{
-    setHeight()
+    setHeightOfVideos()
 })
 
