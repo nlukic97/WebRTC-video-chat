@@ -32,7 +32,7 @@ const toggleAudio = () =>{
     const enabled = myVideoStream.getAudioTracks()[0].enabled
     if(enabled){
         myVideoStream.getAudioTracks()[0].enabled = false
-        document.getElementById('toggleAudio').firstChild.className = 'fas fa-microphone-alt-slash';
+        document.getElementById('toggleAudio').firstChild.className = 'fas fa-microphone-alt-slash red';
     } else {
         myVideoStream.getAudioTracks()[0].enabled = true
         document.getElementById('toggleAudio').firstChild.className = 'fas fa-microphone-alt';
@@ -49,7 +49,7 @@ const toggleVideo = () =>{
     const enabled = myVideoStream.getVideoTracks()[0].enabled;
     if(enabled){
         myVideoStream.getVideoTracks()[0].enabled = false
-        document.getElementById('toggleVideo').firstChild.className = 'fas fa-video-slash';
+        document.getElementById('toggleVideo').firstChild.className = 'fas fa-video-slash red';
     } else {
         myVideoStream.getVideoTracks()[0].enabled = true
         document.getElementById('toggleVideo').firstChild.className = 'fas fa-video';
@@ -97,8 +97,8 @@ navigator.mediaDevices.getUserMedia({
         console.log(`Remove video id: ${disconnectedPeerId}`);
 
         var vidElement = document.getElementById(disconnectedPeerId) //delete element only if it exists. Error happens without this
-        if(element){
-            element.remove()
+        if(vidElement){
+            vidElement.remove()
             setHeightOfVideos()
         }
     })
