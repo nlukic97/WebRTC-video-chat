@@ -23,8 +23,42 @@ const addVideoStream = (video, stream, vidId) =>{
         video.play()
     })
     videoGrid.append(video)
-    setHeightOfVideos() //added
+    setHeightOfVideos() //added 
 }
+// ----------------------------------------------------------------------------------
+
+// switching between sharing screen and not sharing
+var sharingNow = false;
+async function toggleScreenShare(shareStatus){
+    if(shareStatus === false){
+        toggleVideo()
+        var myPeers = Object.keys(peer.connections)
+        var shareScreen = await navigator.mediaDevices.getDisplayMedia()
+
+        for(let i = 0; i < myPeers.length; i++){
+            var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
+            sender[1].replaceTrack(shareScreen.getVideoTracks()[0])
+        }
+
+        sharingNow = true;
+    } else {
+        var webcamVideo = myVideoStream
+        var myPeers = Object.keys(peer.connections)
+
+        for(let i = 0; i < myPeers.length; i++){
+            var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
+            sender[1].replaceTrack(myVideoStream.getVideoTracks()[0])
+        }
+        toggleVideo()
+        sharingNow = false;
+    }
+}
+//event listener for the sharescreen toggle
+document.getElementById('shareScreen').addEventListener('click',()=>{
+    toggleScreenShare(sharingNow)
+})
+
+// ----------------------------------------------------------------------------------------
 
 //muting my audio
 const toggleAudio = () =>{

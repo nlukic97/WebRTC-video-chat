@@ -87,10 +87,30 @@ video {
     background-color: rgb(197, 22, 22);
 }
 
+#videoOptions {
+    display: flex; 
+    justify-content: space-around;
+    border:none!important;
+}
+
+#videoOptions:active {
+    transform: none!important;
+}
+
 #toggleVideo{
     background-color: rgb(58, 57, 57);
+    margin: 0 5px 0;
 }
 #toggleVideo:hover {
+    background-color: rgb(65, 64, 64);
+}
+
+#shareScreen {
+    background-color: rgb(58, 57, 57);
+    margin: 0 5px 0;
+}
+
+#shareScreen:hover {
     background-color: rgb(65, 64, 64);
 }
 
