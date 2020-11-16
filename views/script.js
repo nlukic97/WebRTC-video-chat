@@ -34,7 +34,7 @@ async function toggleScreenShare(shareStatus){
         var myPeers = Object.keys(peer.connections)
         var shareScreen = await navigator.mediaDevices.getDisplayMedia()
         
-        toggleVideo()
+        // toggleVideo()
         for(let i = 0; i < myPeers.length; i++){
             var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
             sender[1].replaceTrack(shareScreen.getVideoTracks()[0])
@@ -52,7 +52,7 @@ async function toggleScreenShare(shareStatus){
         }
 
         document.querySelector('video')[0].srcObject = myVideoStream;
-        toggleVideo()
+        // toggleVideo()
         sharingNow = false;
     }
 }
