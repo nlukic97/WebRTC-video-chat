@@ -41,7 +41,7 @@ async function toggleScreenShare(shareStatus){
         }
         
         sharingNow = true;
-        document.querySelector('video')[0].srcObject = shareScreen;
+        document.querySelectorAll('video')[0].srcObject = shareScreen;
     } else {
         var webcamVideo = myVideoStream
         var myPeers = Object.keys(peer.connections)
@@ -51,7 +51,7 @@ async function toggleScreenShare(shareStatus){
             sender[1].replaceTrack(myVideoStream.getVideoTracks()[0])
         }
 
-        document.querySelector('video')[0].srcObject = myVideoStream;
+        document.querySelectorAll('video')[0].srcObject = myVideoStream;
         // toggleVideo()
         sharingNow = false;
     }
