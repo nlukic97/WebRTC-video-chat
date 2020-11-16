@@ -107,7 +107,7 @@ navigator.mediaDevices.getUserMedia({
     //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
     socket.on('forceDisconnect',msg=>{
         socket.close()
-        console.log(`You have been disconnected from websocket`);
+        console.log(`You have been disconnected from websocket. The road ends here.`);
     })
 })
 

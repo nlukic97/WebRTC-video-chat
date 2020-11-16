@@ -34,7 +34,7 @@ io.on('connection',socket=>{
 
         const userGone = () =>{
             console.log('Socekt on disconnect activated!');
-            console.log(`${userId} has exited the browser`);
+            console.log(`${userId} has exited with the btn from peer. Sending him info to disconnect`);
             socket.emit('forceDisconnect') //disconnecting from client side. 'On disconnect will be triggered after there, telling all to remove the disconnected person.'
         }
 
