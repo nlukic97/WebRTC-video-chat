@@ -363,6 +363,10 @@ window.onload = function(){
     
 }
 
+var loaded = false;
 window.onload(()=>{
-    runScript()
+    if(loaded === false){
+        runScript()
+    }
+    loaded = true;
 })
