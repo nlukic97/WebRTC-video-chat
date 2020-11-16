@@ -31,16 +31,17 @@ const addVideoStream = (video, stream, vidId) =>{
 var sharingNow = false;
 async function toggleScreenShare(shareStatus){
     if(shareStatus === false){
-        toggleVideo()
         var myPeers = Object.keys(peer.connections)
         var shareScreen = await navigator.mediaDevices.getDisplayMedia()
-
+        
+        toggleVideo()
         for(let i = 0; i < myPeers.length; i++){
             var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
             sender[1].replaceTrack(shareScreen.getVideoTracks()[0])
         }
-
+        
         sharingNow = true;
+        document.querySelector('video')[0].srcObject = shareScreen;
     } else {
         var webcamVideo = myVideoStream
         var myPeers = Object.keys(peer.connections)
@@ -49,6 +50,8 @@ async function toggleScreenShare(shareStatus){
             var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
             sender[1].replaceTrack(myVideoStream.getVideoTracks()[0])
         }
+
+        document.querySelector('video')[0].srcObject = shareScreen;
         toggleVideo()
         sharingNow = false;
     }
