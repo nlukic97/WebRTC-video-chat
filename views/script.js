@@ -82,6 +82,7 @@ navigator.mediaDevices.getUserMedia({
         const video = document.createElement('video')
         call.on('stream',userVideoStream=>{
             console.log(`User video stream received: ${userVideoStream}. Adding to our box`);
+            console.log(userVideoStream);
             console.log(`Adding user ${call.peer}`);
             addVideoStream(video,userVideoStream, call.peer)
         })
@@ -107,7 +108,7 @@ navigator.mediaDevices.getUserMedia({
     //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
     socket.on('forceDisconnect',msg=>{
         socket.close()
-        console.log(`You have been disconnected from websocket. The road ends here.`);
+        console.log(`You have been disconnected from websocket. The road ends here. `);
     })
 })
 
