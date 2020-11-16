@@ -51,7 +51,7 @@ async function toggleScreenShare(shareStatus){
             sender[1].replaceTrack(myVideoStream.getVideoTracks()[0])
         }
 
-        document.querySelector('video')[0].srcObject = shareScreen;
+        document.querySelector('video')[0].srcObject = myVideoStream;
         toggleVideo()
         sharingNow = false;
     }
