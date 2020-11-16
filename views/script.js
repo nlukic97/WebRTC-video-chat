@@ -33,8 +33,9 @@ async function toggleScreenShare(shareStatus){
     if(shareStatus === false){
         var myPeers = Object.keys(peer.connections)
         var shareScreen = await navigator.mediaDevices.getDisplayMedia()
-        
-        // toggleVideo()
+        document.getElementById('shareScreen').firstChild.className = 'fas fa-fas fa-video-slash red';
+
+        //                 toggleVideo()
         for(let i = 0; i < myPeers.length; i++){
             var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
             sender[1].replaceTrack(shareScreen.getVideoTracks()[0])
@@ -45,6 +46,7 @@ async function toggleScreenShare(shareStatus){
     } else {
         var webcamVideo = myVideoStream
         var myPeers = Object.keys(peer.connections)
+        document.getElementById('shareScreen').firstChild.className = 'fas fas fa-video';
 
         for(let i = 0; i < myPeers.length; i++){
             var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
@@ -52,7 +54,7 @@ async function toggleScreenShare(shareStatus){
         }
 
         document.querySelectorAll('video')[0].srcObject = myVideoStream;
-        // toggleVideo()
+        //                 toggleVideo()
         sharingNow = false;
     }
 }
