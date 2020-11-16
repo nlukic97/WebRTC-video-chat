@@ -33,7 +33,7 @@ async function toggleScreenShare(shareStatus){
     if(shareStatus === false){
         var myPeers = Object.keys(peer.connections)
         var shareScreen = await navigator.mediaDevices.getDisplayMedia()
-        document.getElementById('shareScreen').firstChild.className = 'fas fa-fas fa-video';
+        document.getElementById('shareScreen').firstChild.className = 'far fa-newspaper';
 
         //                 toggleVideo()
         for(let i = 0; i < myPeers.length; i++){
@@ -46,7 +46,7 @@ async function toggleScreenShare(shareStatus){
     } else {
         var webcamVideo = myVideoStream
         var myPeers = Object.keys(peer.connections)
-        document.getElementById('shareScreen').firstChild.className = 'fas fa-video-slash red';
+        document.getElementById('shareScreen').firstChild.className = 'far fa-newspaper red'; //no good symbol for sharing screen
 
         for(let i = 0; i < myPeers.length; i++){
             var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
