@@ -25,6 +25,7 @@ app.get('/:room',(req,res)=>{
 io.on('connection',socket=>{
     console.log(`User has connected.`);
     socket.on('join-room',(roomId, userId)=>{
+        console.log(`user ${userId} has entered.`);
         socket.join(roomId)
         socket.to(roomId).broadcast.emit('user-connected',userId)
 
