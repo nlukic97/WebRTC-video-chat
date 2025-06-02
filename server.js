@@ -1,18 +1,24 @@
+import fs from "fs"
 import express from 'express';
 import dotenv from "dotenv"
 dotenv.config();
 
 import { v4 as uuidv4 } from 'uuid';
 import { ExpressPeerServer } from 'peer';
-import {createServer} from "http";
+import {createServer} from "https";
 import { Server } from "socket.io";
 
+// certificates
+const key = fs.readFileSync('./cert/key.pem');
+const cert = fs.readFileSync('./cert/cert.pem');
+
 const app = express()
-const httpServer = createServer(app);
+const httpServer = createServer({key: key, cert: cert },app);
 const io = new Server(httpServer);
 
-const peerServer = ExpressPeerServer(httpServer,{
-    debug: true
+const peerServer = ExpressPeerServer(httpServer, {
+    debug: true,
+    key: key
 })
 
 
@@ -23,17 +29,14 @@ const PORT = process.env.PORT || 443;
 //peer
 app.use('/peerjs',peerServer) 
 
-
 /** Routes */
 
 // @notice Creates a new room for video calling
-app.get('/',(req,res)=>res.redirect(`/${uuidv4()}`))
+app.get('/',(_, res)=>res.redirect(`/${uuidv4()}`))
 
 // Opens a room with a specific id that has already been created
 // @notice Opens a room with a specific id.
-app.get('/:room',(req,res)=>{
-    res.render('room', { roomId: req.params.room } )
-})
+app.get('/:room',(req,res)=>res.render('room', { roomId: req.params.room, peerPort: PORT }))
 
 // @notice socket event listeners and actions
 io.on('connection',socket=>{
@@ -62,4 +65,4 @@ io.on('connection',socket=>{
     })
 })
 
-httpServer.listen(PORT,()=>console.log(`Listening at http://localhost:${PORT}`))
+httpServer.listen(PORT,()=>console.log(`Listening at https://localhost:${PORT}`))

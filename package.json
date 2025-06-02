@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "update heroku": "git add . && git commit -m'update' && git push heroku master"
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
