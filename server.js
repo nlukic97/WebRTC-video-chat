@@ -1,27 +1,41 @@
-let express = require('express')
-let app = express()
-let port = 443;
-let server = require('http').createServer(app) //or createServer  ???
-const io = require('socket.io')(server)
-const {v4: uuidv4} = require('uuid')
-const {ExpressPeerServer} = require('peer')
-const peerServer = ExpressPeerServer(server,{
+import express from 'express';
+import dotenv from "dotenv"
+dotenv.config();
+
+import { v4 as uuidv4 } from 'uuid';
+import { ExpressPeerServer } from 'peer';
+import {createServer} from "http";
+import { Server } from "socket.io";
+
+const app = express()
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+
+const peerServer = ExpressPeerServer(httpServer,{
     debug: true
 })
-app.set('view engine', 'ejs') //what is the ejs module for ? ejs library?
-app.use(express.static('./views'))
 
-//peer 
+
+app.set('view engine', 'ejs')
+app.use(express.static('./views'))
+const PORT = process.env.PORT || 443;
+
+//peer
 app.use('/peerjs',peerServer) 
 
-app.get('/',(req,res)=>{
-    res.redirect(`/${uuidv4()}`)
-})
 
+/** Routes */
+
+// @notice Creates a new room for video calling
+app.get('/',(req,res)=>res.redirect(`/${uuidv4()}`))
+
+// Opens a room with a specific id that has already been created
+// @notice Opens a room with a specific id.
 app.get('/:room',(req,res)=>{
-    res.render('room',{roomId: req.params.room}) //does this tell the server that we want the files in here to be shown ? read more on this
+    res.render('room', { roomId: req.params.room } )
 })
 
+// @notice socket event listeners and actions
 io.on('connection',socket=>{
     console.log(`User has connected.`);
     socket.on('join-room',(roomId, userId)=>{
@@ -46,10 +60,6 @@ io.on('connection',socket=>{
             socket.to(roomId).broadcast.emit('removeUserVideo', userId)
         })
     })
-    
-    
-    
 })
-server.listen((process.env.PORT || port),()=>{
-    console.log(`Server started at http://localhost:${port}`);
-})
+
+httpServer.listen(PORT,()=>console.log(`Listening at http://localhost:${PORT}`))
