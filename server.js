@@ -31,7 +31,6 @@ const peerServer = PeerServer({
     port:9000,
     path:'/peerjs'
 })
-app.use(peerServer)
 
 /** Routes */
 
@@ -50,6 +49,8 @@ io.on('connection',socket=>{
     socket.on('join-room',(roomId, userId)=>{
         console.log(`user ${userId} has entered.`);
         socket.join(roomId)
+
+        // @audit-issue this breaks
         socket.to(roomId).broadcast.emit('user-connected',userId)
 
         socket.on('peerLeft',id=>{    
@@ -71,4 +72,5 @@ io.on('connection',socket=>{
     })
 })
 
+peerServer.listen(()=> console.log('Peer server live at http://localhost:9000'))
 httpServer.listen(PORT,()=>console.log(`Listening at https://localhost:${PORT}`))

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css?v=25556">
     <!-- @todo - import socket.io, peerjs, and fontawesome fron nodemodules, not cdn -->
     <script src="/socket.io/socket.io.js"></script>
-    <!-- <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script> -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="https://kit.fontawesome.com/279db593be.js" crossorigin="anonymous"></script>
     <script>
         const ROOM_ID = '<%= roomId %>'
@@ -32,7 +32,7 @@
             </div>
             <div id="destroyPeer">Exit call</div>
         </div> 
-    </div>     
-    <script src="script.js?v=25556"></script> <!-- So we defined the static files of the server so we can use it here-->
+    </div> 
+    <script type="module" src="./script.js"></script> <!-- So we defined the static files of the server so we can use it here-->
 </body>
 </html>
