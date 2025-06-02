@@ -1,24 +1,26 @@
 import fs from "fs"
 import express from 'express';
+import { ExpressPeerServer } from 'peer';
+
 import dotenv from "dotenv"
 dotenv.config();
 
 import { v4 as uuidv4 } from 'uuid';
-import { ExpressPeerServer } from 'peer';
-import {createServer} from "https";
+// import {createServer} from "https";
+import {createServer} from "http";
 import { Server } from "socket.io";
 
 // certificates
-const key = fs.readFileSync('./cert/key.pem');
-const cert = fs.readFileSync('./cert/cert.pem');
+/* const key = fs.readFileSync('./cert/key.pem');
+const cert = fs.readFileSync('./cert/cert.pem'); */
 
 const app = express()
-const httpServer = createServer({key: key, cert: cert },app);
+// const httpServer = createServer({key: key, cert: cert },app);
+const httpServer = createServer(app);
 const io = new Server(httpServer);
 
 const peerServer = ExpressPeerServer(httpServer, {
-    debug:true,
-    path:'/peer'
+    path:'/peerjs'
 })
 
 
@@ -27,7 +29,8 @@ app.use(express.static('./views'))
 const PORT = process.env.PORT || 443;
 
 //peer
-app.use('/peerjs', peerServer) 
+// @audit-issue including this breaks the ws connection in client
+// app.use('/peerjs', peerServer) 
 
 /** Routes */
 
@@ -40,7 +43,9 @@ app.get('/:room',(req,res)=>res.render('room', { roomId: req.params.room }))
 
 // @notice socket event listeners and actions
 io.on('connection',socket=>{
+    console.log(socket.id)
     console.log(`User has connected.`);
+    
     socket.on('join-room',(roomId, userId)=>{
         console.log(`user ${userId} has entered.`);
         socket.join(roomId)

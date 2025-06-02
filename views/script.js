@@ -1,11 +1,13 @@
-const socket = io('/')
+const socket = io()
+
 var myId; //later to be used to signal to others
 
 const videoGrid = document.getElementById('video-grid')
 const myVideo = document.createElement('video')
 myVideo.muted = true;
 
-const connectToNewUser = (userId, stream) =>{
+const connectToNewUser = (userId, stream) => {
+    // @todo re-implement. peer wont work here with others commented out
     const call = peer.call(userId, stream)
     const video = document.createElement('video')
     call.on('stream', uservideoStream => {
@@ -99,9 +101,10 @@ document.getElementById('toggleVideo').addEventListener('click',()=>{
 
 
 //connecting to peer from client
-var peer = new Peer(undefined,{
+// @todo re-implement
+/* var peer = new Peer(undefined,{
     path:'/peerjs',
-})
+}) */
 
 let myVideoStream;
 
@@ -112,7 +115,8 @@ navigator.mediaDevices.getUserMedia({
     myVideoStream = stream;
     addVideoStream(myVideo,stream)
     
-    peer.on('call',call=>{
+    // @todo re-implement
+    /* peer.on('call',call=>{
         call.answer(stream)
         const video = document.createElement('video')
         call.on('stream',userVideoStream=>{
@@ -121,7 +125,7 @@ navigator.mediaDevices.getUserMedia({
             console.log(`Adding user ${call.peer}`);
             addVideoStream(video,userVideoStream, call.peer)
         })
-    })
+    }) */
     
     socket.on('user-connected',(userId)=>{
         // console.log(`Another user has joined. Their id: ${userId}. Contacting them...`);
@@ -147,20 +151,23 @@ navigator.mediaDevices.getUserMedia({
     })
 })
 
-peer.on('open', id=>{
+// @todo re-implement
+/* peer.on('open', id=>{
     socket.emit('join-room', ROOM_ID, id)
     myId = id;
-})
-
-
-peer.on('connection',()=>{
+    }) */
+   
+   
+// @todo re-implement
+/* peer.on('connection',()=>{
     console.log('peer connection established');
-})
+}) */
 
 
 //client click to end call and stays in browser
 document.getElementById('destroyPeer').addEventListener('click',()=>{
-    peer.destroy()
+    // @todo re-implement
+    // peer.destroy()
 
     //removing all videos for client who is leaving.
     var videoNodes = document.querySelectorAll('video')
@@ -170,14 +177,16 @@ document.getElementById('destroyPeer').addEventListener('click',()=>{
 })
 
 //once disconnected from peer, we tell the server this. The server will tell disconnect this user from websocket (see -DISCONNECT FUNCTION - )
-peer.on('close',()=>{
+// @todo re-implement
+/* peer.on('close',()=>{
     console.log(`Peer destroyed : ${peer.destroyed}. Letting Everyone else on in the room know.`);
     socket.emit('peerLeft',myId)
-})
+}) */
 
-peer.on('disconnected',()=>{
+// @todo re-implement
+/* peer.on('disconnected',()=>{
     console.log('Peer disconnected');
-})
+}) */
 
 //----- styling
 const setHeightOfVideos = () =>{
