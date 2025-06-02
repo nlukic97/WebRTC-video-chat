@@ -1,6 +1,5 @@
 import fs from "fs"
 import express from 'express';
-import { ExpressPeerServer } from 'peer';
 
 import dotenv from "dotenv"
 dotenv.config();
@@ -11,26 +10,28 @@ import {createServer} from "http";
 import { Server } from "socket.io";
 
 // certificates
-/* const key = fs.readFileSync('./cert/key.pem');
-const cert = fs.readFileSync('./cert/cert.pem'); */
+const key = fs.readFileSync('./cert/key.pem');
+const cert = fs.readFileSync('./cert/cert.pem');
 
 const app = express()
-// const httpServer = createServer({key: key, cert: cert },app);
-const httpServer = createServer(app);
+const httpServer = createServer({key: key, cert: cert },app);
+// const httpServer = createServer(app);
 const io = new Server(httpServer);
 
-const peerServer = ExpressPeerServer(httpServer, {
-    path:'/peerjs'
-})
 
 
 app.set('view engine', 'ejs')
 app.use(express.static('./views'))
 const PORT = process.env.PORT || 443;
+const PEER_PORT = process.env.PEER_PORT || 9000;
 
-//peer
-// @audit-issue including this breaks the ws connection in client
-// app.use('/peerjs', peerServer) 
+// Peer server
+import { PeerServer } from 'peer';
+const peerServer = PeerServer({
+    port:9000,
+    path:'/peerjs'
+})
+app.use(peerServer)
 
 /** Routes */
 
@@ -39,7 +40,7 @@ app.get('/',(_, res)=>res.redirect(`/${uuidv4()}`))
 
 // Opens a room with a specific id that has already been created
 // @notice Opens a room with a specific id.
-app.get('/:room',(req,res)=>res.render('room', { roomId: req.params.room }))
+app.get('/:room',(req,res)=>res.render('room', { roomId: req.params.room, peerPort: PEER_PORT }))
 
 // @notice socket event listeners and actions
 io.on('connection',socket=>{
