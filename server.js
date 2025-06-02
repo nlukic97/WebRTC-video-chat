@@ -17,8 +17,8 @@ const httpServer = createServer({key: key, cert: cert },app);
 const io = new Server(httpServer);
 
 const peerServer = ExpressPeerServer(httpServer, {
-    debug: true,
-    key: key
+    debug:true,
+    path:'/peer'
 })
 
 
@@ -27,7 +27,7 @@ app.use(express.static('./views'))
 const PORT = process.env.PORT || 443;
 
 //peer
-app.use('/peerjs',peerServer) 
+app.use('/peerjs', peerServer) 
 
 /** Routes */
 
@@ -36,7 +36,7 @@ app.get('/',(_, res)=>res.redirect(`/${uuidv4()}`))
 
 // Opens a room with a specific id that has already been created
 // @notice Opens a room with a specific id.
-app.get('/:room',(req,res)=>res.render('room', { roomId: req.params.room, peerPort: PORT }))
+app.get('/:room',(req,res)=>res.render('room', { roomId: req.params.room }))
 
 // @notice socket event listeners and actions
 io.on('connection',socket=>{

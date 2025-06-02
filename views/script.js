@@ -101,8 +101,6 @@ document.getElementById('toggleVideo').addEventListener('click',()=>{
 //connecting to peer from client
 var peer = new Peer(undefined,{
     path:'/peerjs',
-    host:'/',
-    port: peerPort
 })
 
 let myVideoStream;
