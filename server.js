@@ -51,7 +51,7 @@ io.on('connection',socket=>{
         socket.join(roomId)
 
         // @audit-issue this breaks
-        socket.to(roomId).broadcast.emit('user-connected',userId)
+        socket.to(roomId).emit('user-connected',userId)
 
         socket.on('peerLeft',id=>{    
             userGone()   
@@ -67,7 +67,7 @@ io.on('connection',socket=>{
         //Telling others to remove the video of the disconnected person. videoid is the same as the peerId
         socket.on('disconnect',()=>{
             console.log(`User with the id ${userId} has exited via browser`);
-            socket.to(roomId).broadcast.emit('removeUserVideo', userId)
+            socket.to(roomId).emit('removeUserVideo', userId)
         })
     })
 })

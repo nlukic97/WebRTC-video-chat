@@ -7,7 +7,6 @@ const myVideo = document.createElement('video')
 myVideo.muted = true;
 
 const connectToNewUser = (userId, stream) => {
-    // @todo re-implement. peer wont work here with others commented out
     const call = peer.call(userId, stream)
     const video = document.createElement('video')
     call.on('stream', uservideoStream => {
@@ -101,7 +100,6 @@ document.getElementById('toggleVideo').addEventListener('click',()=>{
 
 
 //connecting to peer from client
-// @todo re-implement
 var peer = new Peer(undefined,{
     host:'localhost',
     path:'/peerjs',
@@ -117,7 +115,6 @@ navigator.mediaDevices.getUserMedia({
     myVideoStream = stream;
     addVideoStream(myVideo,stream)
     
-    // @todo re-implement
     peer.on('call',call=>{
         call.answer(stream)
         const video = document.createElement('video')
@@ -130,7 +127,7 @@ navigator.mediaDevices.getUserMedia({
     })
     
     socket.on('user-connected',(userId)=>{
-        // console.log(`Another user has joined. Their id: ${userId}. Contacting them...`);
+        console.log(`Another user has joined. Their id: ${userId}. Contacting them...`);
         connectToNewUser(userId, stream)
     })
 
@@ -153,7 +150,6 @@ navigator.mediaDevices.getUserMedia({
     })
 })
 
-// @todo re-implement
 peer.on('open', id=>{
     console.log('My peer ID is: ' + id);
     socket.emit('join-room', ROOM_ID, id)
@@ -161,7 +157,6 @@ peer.on('open', id=>{
 })
    
    
-// @todo re-implement
 peer.on('connection',()=>{
     console.log('peer connection established');
 })
@@ -169,7 +164,7 @@ peer.on('connection',()=>{
 
 //client click to end call and stays in browser
 document.getElementById('destroyPeer').addEventListener('click',()=>{
-    // @todo re-implement
+
     peer.destroy()
 
     //removing all videos for client who is leaving.
@@ -180,13 +175,11 @@ document.getElementById('destroyPeer').addEventListener('click',()=>{
 })
 
 //once disconnected from peer, we tell the server this. The server will tell disconnect this user from websocket (see -DISCONNECT FUNCTION - )
-// @todo re-implement
 peer.on('close',()=>{
     console.log(`Peer destroyed : ${peer.destroyed}. Letting Everyone else on in the room know.`);
     socket.emit('peerLeft',myId)
 })
 
-// @todo re-implement
 peer.on('disconnected',()=>{
     console.log('Peer disconnected');
 })
