@@ -39,7 +39,7 @@ app.get('/',(_, res)=>res.redirect(`/${uuidv4()}`))
 
 // Opens a room with a specific id that has already been created
 // @notice Opens a room with a specific id.
-app.get('/:room',(req,res)=>res.render('room', { roomId: req.params.room, peerPort: PEER_PORT }))
+app.get('/:room',(req,res)=> res.render('room', { roomId: req.params.room, peerPort: PEER_PORT }))
 
 // @notice socket event listeners and actions
 io.on('connection',socket=>{
