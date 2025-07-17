@@ -5,8 +5,10 @@ import dotenv from "dotenv"
 dotenv.config();
 
 import { v4 as uuidv4 } from 'uuid';
-// import {createServer} from "https";
-import {createServer} from "http";
+
+import {createServer as createServerHttp} from "http";
+import {createServer as createServerHttps} from "https";
+
 import { Server } from "socket.io";
 import { PeerServer } from 'peer';
 
@@ -15,31 +17,41 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+const PORT = process.env.PORT || 443;
+const PEER_PORT = process.env.PEER_PORT || 9000;
 
 const app = express()
+let key;
+let cert;
+let httpServer;
 
-/* 
-// certificates
-const key = fs.readFileSync('./cert/key.pem');
-const cert = fs.readFileSync('./cert/cert.pem');
-const httpServer = createServer({key: key, cert: cert },app);
-*/
+const useHttps = process.env.USE_HTTPS === 'true' ? true : process.env.USE_HTTPS === 'false' ? false : undefined;
+if(useHttps === undefined) throw new Error('Please set useHttps to either "true" or "false"');
 
-const httpServer = createServer(app);
+if(useHttps){
+    // 1. https server
+    key = fs.readFileSync(__dirname+ '/../cert/selfsigned.key','utf8');
+    cert = fs.readFileSync(__dirname+'/../cert/selfsigned.crt','utf8');
+    httpServer = createServerHttps({key: key, cert: cert },app);
+} else {
+    // 2. http server
+    httpServer = createServerHttp(app);
+}
+
+
 const io = new Server(httpServer);
+
+// @todo this peerServer is necessary. But the socket server might not be
+const peerServer = PeerServer({
+    port:9000,
+    path:'/peerjs',
+    ssl: useHttps && {key,cert}
+})
 
 
 app.set('view engine', 'ejs')
 app.use(express.static(__dirname + '/views'))
 app.set('views', __dirname + '/views');
-const PORT = process.env.PORT || 443;
-const PEER_PORT = process.env.PEER_PORT || 9000;
-
-// Peer server
-const peerServer = PeerServer({
-    port:9000,
-    path:'/peerjs',
-})
 
 // const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -50,7 +62,14 @@ app.get('/',(_, res)=>res.redirect(`/${uuidv4()}`))
 
 // Opens a room with a specific id that has already been created
 // @notice Opens a room with a specific id.
-app.get('/:room',(req,res)=> res.render('room/index', { roomId: req.params.room, peerPort: PEER_PORT }))
+app.get('/:room',(req,res)=> {
+    return res.render('room/index', { roomId: req.params.room, peerPort: PEER_PORT })
+})
+
+// 404 handler for all other routes
+app.use((req, res) => {
+    res.status(404).send('404 Not Found');
+});
 
 // @notice socket event listeners and actions
 io.on('connection',socket=>{
@@ -82,5 +101,5 @@ io.on('connection',socket=>{
     })
 })
 
-peerServer.listen(()=> console.log('Peer server live at http://localhost:9000'))
-httpServer.listen(PORT,()=>console.log(`Listening at https://localhost:${PORT}`))
+peerServer.listen(()=> console.log(`Peer server live at ${useHttps ? 'https' : 'http'}://localhost:9000`))
+httpServer.listen(PORT,()=>console.log(`Listening at ${useHttps ? 'https' : 'http'}://localhost:${PORT}`))
