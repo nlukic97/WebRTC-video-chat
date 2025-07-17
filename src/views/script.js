@@ -108,54 +108,60 @@ var peer = new Peer(undefined,{
 
 let myVideoStream;
 
-navigator.mediaDevices.getUserMedia({
-    video:true,
-    audio:true
-}).then(stream => {
-    myVideoStream = stream;
-    addVideoStream(myVideo,stream)
-    
-    peer.on('call',call=>{
-        call.answer(stream)
-        const video = document.createElement('video')
-        call.on('stream',userVideoStream=>{
-            console.log(`User video stream received: ${userVideoStream}. Adding to our box`);
-            console.log(userVideoStream);
-            console.log(`Adding user ${call.peer}`);
-            addVideoStream(video,userVideoStream, call.peer)
-        })
-    })
-    
-    socket.on('user-connected',(userId)=>{
-        console.log(`Another user has joined. Their id: ${userId}. Contacting them...`);
-        connectToNewUser(userId, stream)
-    })
-
-    //removing video of user who has disconnected from websocket
-    socket.on('removeUserVideo',disconnectedPeerId=>{
-        console.log(`Remove video id: ${disconnectedPeerId}`);
-
-        var vidElement = document.getElementById(disconnectedPeerId) //delete element only if it exists. Error happens without this
-        if(vidElement){
-            vidElement.remove()
-            setHeightOfVideos()
-        }
-    })
-
-    // -DISCONNECT FUNCTION - disconnecting this user from websocket. This will trigger the on.disconnected listener on the server.
-    //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
-    socket.on('forceDisconnect',msg=>{
-        socket.close()
-        console.log(`You have been disconnected from websocket. The road ends here. `);
-    })
-})
-
+// first wait to connect to the peer server
 peer.on('open', id=>{
     console.log('My peer ID is: ' + id);
-    socket.emit('join-room', ROOM_ID, id)
     myId = id;
+    
+    // after that wait for media stream
+    navigator.mediaDevices.getUserMedia({
+        video:true,
+        audio:true
+    }).then(stream => {
+        myVideoStream = stream;
+        addVideoStream(myVideo,stream)
+        
+        socket.emit('join-room', ROOM_ID, id)
+    
+        peer.on('call',call=>{
+            console.log('Received a call...')
+    
+            call.answer(stream)
+            const video = document.createElement('video')
+            call.on('stream',userVideoStream=>{
+                console.log(`User video stream received: ${userVideoStream}. Adding to our box`);
+                console.log(userVideoStream);
+                console.log(`Adding user ${call.peer}`);
+                addVideoStream(video,userVideoStream, call.peer)
+            })
+        })
+        
+        socket.on('user-connected',(userId)=>{
+            console.log(`User ${userId} has joined the socket room. Contacting them...`);
+            connectToNewUser(userId, stream)
+        })
+    
+        //removing video of user who has disconnected from websocket
+        socket.on('removeUserVideo',disconnectedPeerId=>{
+            console.log(`Remove video id: ${disconnectedPeerId}`);
+    
+            var vidElement = document.getElementById(disconnectedPeerId) //delete element only if it exists. Error happens without this
+            if(vidElement){
+                vidElement.remove()
+                setHeightOfVideos()
+            }
+        })
+    
+        // -DISCONNECT FUNCTION - disconnecting this user from websocket. This will trigger the on.disconnected listener on the server.
+        //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
+        socket.on('forceDisconnect',msg=>{
+            socket.close()
+            console.log(`You have been disconnected from websocket. The road ends here. `);
+        })
+    }) 
 })
-   
+
+
    
 peer.on('connection',()=>{
     console.log('peer connection established');

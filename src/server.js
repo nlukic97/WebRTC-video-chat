@@ -8,29 +8,40 @@ import { v4 as uuidv4 } from 'uuid';
 // import {createServer} from "https";
 import {createServer} from "http";
 import { Server } from "socket.io";
+import { PeerServer } from 'peer';
 
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+
+const app = express()
+
+/* 
 // certificates
 const key = fs.readFileSync('./cert/key.pem');
 const cert = fs.readFileSync('./cert/cert.pem');
-
-const app = express()
 const httpServer = createServer({key: key, cert: cert },app);
-// const httpServer = createServer(app);
+*/
+
+const httpServer = createServer(app);
 const io = new Server(httpServer);
 
 
-
 app.set('view engine', 'ejs')
-app.use(express.static('./views'))
+app.use(express.static(__dirname + '/views'))
+app.set('views', __dirname + '/views');
 const PORT = process.env.PORT || 443;
 const PEER_PORT = process.env.PEER_PORT || 9000;
 
 // Peer server
-import { PeerServer } from 'peer';
 const peerServer = PeerServer({
     port:9000,
-    path:'/peerjs'
+    path:'/peerjs',
 })
+
+// const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /** Routes */
 
@@ -39,23 +50,22 @@ app.get('/',(_, res)=>res.redirect(`/${uuidv4()}`))
 
 // Opens a room with a specific id that has already been created
 // @notice Opens a room with a specific id.
-app.get('/:room',(req,res)=> res.render('room', { roomId: req.params.room, peerPort: PEER_PORT }))
+app.get('/:room',(req,res)=> res.render('room/index', { roomId: req.params.room, peerPort: PEER_PORT }))
 
 // @notice socket event listeners and actions
 io.on('connection',socket=>{
     console.log(socket.id)
     console.log(`User has connected.`);
     
-    socket.on('join-room',(roomId, userId)=>{
+    socket.on('join-room',async (roomId, userId)=>{
         console.log(`user ${userId} has entered.`);
         socket.join(roomId)
 
-        // @audit-issue this breaks
-        socket.to(roomId).emit('user-connected',userId)
+        socket.to(roomId).emit('user-connected', userId);
 
-        socket.on('peerLeft',id=>{    
-            userGone()   
-        })
+        socket.on('peerLeft', id => {
+            userGone();
+        });
 
         const userGone = () =>{
             console.log('Socekt on disconnect activated!');
