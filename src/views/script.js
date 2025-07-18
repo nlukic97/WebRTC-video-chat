@@ -101,8 +101,7 @@ document.getElementById('toggleVideo').addEventListener('click',()=>{
 
 //connecting to peer from client
 var peer = new Peer(undefined,{
-    // host:'ip here',
-    host:'localhost',
+    host: window.location.hostname,
     path:'/peerjs',
     port: PEER_PORT,
     iceServers: [

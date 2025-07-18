@@ -48,3 +48,9 @@
 14:29:52.765 INFO  FjbrheSe8p02yqLWAAAF has exited with the btn from peer. Sending him info to disconnect
 14:29:52.769 INFO  User with peer id 95a7d228-7e8b-4990-bec1-43e4c7a283f7 has exited via browser
 14:29:54.587 INFO  User with peer id 6552e18a-b4fb-4d84-901f-5a8a68990227 has exited via browser
+14:33:29.497 INFO  User with socket.id 7fIOy7yp6_iB-rK3AAAB has connected.
+14:33:29.620 INFO  Peer with id 26c3bb61-cdb4-4be9-ab2c-b48b17ca86ab has requested to enter room 7d123540-3981-4ccf-b458-33ad30442223.
+14:33:31.240 INFO  User with socket.id ASmR1r5tUuy7UlryAAAD has connected.
+14:33:31.388 INFO  Peer with id 914cd0d1-c35b-453d-a468-90c071fa1c46 has requested to enter room 7d123540-3981-4ccf-b458-33ad30442223.
+14:33:32.085 INFO  User with peer id 914cd0d1-c35b-453d-a468-90c071fa1c46 has exited via browser
+14:33:33.242 INFO  User with peer id 26c3bb61-cdb4-4be9-ab2c-b48b17ca86ab has exited via browser
