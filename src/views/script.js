@@ -4,9 +4,10 @@ var myId; //later to be used to signal to others
 
 const videoGrid = document.getElementById('video-grid')
 const myVideo = document.createElement('video')
+myVideo.muted = true; // ensures that we do not hear ourselves
 
 const connectToNewUser = (peerId, stream) => {
-    console.log(`User ${peerId} has joined the socket room. Contacting them...`);
+    console.log(`User ${peerId} has joined the socket room. Initiating peer call`);
 
     const call = peer.call(peerId, stream)
     const video = document.createElement('video')

@@ -3,21 +3,6 @@ import path from 'path';
 
 const logFilePath = path.resolve('./logs/node.log');
 
-function pad(num, size = 2) {
-    let s = String(num);
-    while (s.length < size) s = "0" + s;
-    return s;
-}
-
-function getTimestamp() {
-    const now = new Date();
-    const h = pad(now.getHours());
-    const m = pad(now.getMinutes());
-    const s = pad(now.getSeconds());
-    const ms = pad(now.getMilliseconds(), 3);
-    return `${h}:${m}:${s}.${ms}`;
-}
-
 /**
  * Logger
  * 
@@ -62,11 +47,30 @@ export default class Logger {
     }
 
     #_log(type, msg) {
-        const line = `${getTimestamp()} ${type}  ${msg}`;
+        const line = `${this.#_getTimestamp()} ${type}  ${msg}`;
         fs.appendFileSync(this.logFilePath, line + '\n', { encoding: 'utf8' });
         if (this.env !== 'production') {
             console.log(line);
         }
+    }
+
+    #_pad(num, size = 2) {
+        let s = String(num);
+        while (s.length < size) s = "0" + s;
+        return s;
+    }
+    
+    #_getTimestamp() {
+        const now = new Date();
+        const weekday = now.toLocaleString('en-US', { weekday: 'long' });
+        const day = this.#_pad(now.getDate());
+        const month = this.#_pad(now.getMonth() + 1); // Months are zero-based
+        const year = now.getFullYear();
+        const h = this.#_pad(now.getHours());
+        const m = this.#_pad(now.getMinutes());
+        const s = this.#_pad(now.getSeconds());
+        const ms = this.#_pad(now.getMilliseconds(), 3);
+        return `${weekday} ${day}/${month}/${year} ${h}:${m}:${s}.${ms}`;
     }
 
     info(msg) {
