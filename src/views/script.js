@@ -104,7 +104,10 @@ var peer = new Peer(undefined,{
     // host:'ip here',
     host:'localhost',
     path:'/peerjs',
-    port: PEER_PORT
+    port: PEER_PORT,
+    iceServers: [
+        ...iceServers
+    ]
 })
 
 let myVideoStream;

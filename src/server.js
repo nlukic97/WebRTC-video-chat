@@ -14,10 +14,10 @@ import { PeerServer } from 'peer';
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { useLog } from "./utils/Log.js";
 
-// Configuring the console.log function. Only will log things if not set to production mode.
-const Log = useLog(process.env.ENV)
+import Logger from "./utils/Log.js";
+
+import { iceServers as iceServersList } from "./utils/iceServers.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -43,25 +43,34 @@ if(useHttps){
     httpServer = createServerHttp(app);
 }
 
-
 const io = new SocketServer(httpServer);
 
-// @todo this peerServer is necessary. But the socket server might not be
+// PeerServer
 const peerServer = PeerServer({
-    port:9000,
+    port: PEER_PORT,
     path:'/peerjs',
-    ssl: useHttps && {key,cert}
+    ssl: useHttps && {key,cert},
+    iceServers: [
+        ...iceServersList
+    ]
 })
 
+const Log = new Logger(process.env.ENV);
 
 app.set('view engine', 'ejs')
 app.use(express.static(__dirname + '/views'))
 app.set('views', __dirname + '/views');
 
-
 /** Routes */
 app.get('/',(_, res)=>res.redirect(`/${uuidv4()}`))
-app.get('/:room',(req,res)=> res.render('room/index', { roomId: req.params.room, peerPort: PEER_PORT }))
+
+app.get('/:room',(req,res)=> res.render('room/index', { 
+        roomId: req.params.room, 
+        peerPort: PEER_PORT, 
+        iceServers: JSON.stringify(iceServersList) 
+    }
+))
+
 app.use((_, res) => res.status(404).send('404 Not Found'));
 
 
@@ -71,7 +80,7 @@ app.use((_, res) => res.status(404).send('404 Not Found'));
  * Handles a user's request to join a room.
  * 
  * @param {string} roomId - The ID of the room the user wants to join.
- * @param {string} userId - The ID of the user joining the room.
+ * @param {string} peerId - The ID of the user joining the room.
  * @param {Socket} socket - The socket instance representing the user's connection.
  * 
  * Behavior:
@@ -80,12 +89,12 @@ app.use((_, res) => res.status(404).send('404 Not Found'));
  * - Notifies other users in the room that a new user has connected by emitting 'user-connected' with the userId.
  * - Sets up a listener for the 'disconnect' event on the socket, which will call handleDisconnect when triggered.
  */
-const handleJoinRoon = async (roomId, userId, socket) => {
-    Log(`user ${userId} has requested to enter room ${roomId}.`);
+const handleJoinRoon = async (roomId, peerId, socket) => {
+    Log.info(`Peer with id ${peerId} has requested to enter room ${roomId}.`);
     await socket.join(roomId);
 
-    socket.to(roomId).emit('user-connected', userId);
-    socket.on('disconnect', () => handleDisconnect(roomId, userId, socket));
+    socket.to(roomId).emit('user-connected', peerId);
+    socket.on('disconnect', () => handleDisconnect(roomId, peerId, socket));
 };
 
 /**
@@ -101,7 +110,7 @@ const handleJoinRoon = async (roomId, userId, socket) => {
  * - The client-side disconnect will trigger the 'disconnect' event, which will notify other users to remove the disconnected user.
  */
 const handleManualDisconnect = (socket) => {
-    Log(`${socket.id} has exited with the btn from peer. Sending him info to disconnect`);
+    Log.info(`${socket.id} has exited with the btn from peer. Sending him info to disconnect`);
     socket.emit('forceDisconnect') //disconnecting from client side. 'On disconnect will be triggered after there, telling all to remove the disconnected person.'
 }
 
@@ -111,16 +120,16 @@ const handleManualDisconnect = (socket) => {
  * Handles the disconnection of a user from a room.
  * 
  * @param {string} roomId - The ID of the room the user is leaving.
- * @param {string} userId - The ID of the user who is disconnecting.
+ * @param {string} peerId - The ID of the user who is disconnecting.
  * @param {Socket} socket - The socket instance representing the user's connection.
  * 
  * Behavior:
  * - Logs that the user has exited via the browser.
- * - Notifies other users in the room to remove the disconnected user's video by emitting 'removeUserVideo' with the userId.
+ * - Notifies other users in the room to remove the disconnected user's video by emitting 'removeUserVideo' with the peerId.
  */
-const handleDisconnect = (roomId, userId, socket) => {
-    Log(`User with the id ${userId} has exited via browser`);
-    socket.to(roomId).emit('removeUserVideo', userId);
+const handleDisconnect = (roomId, peerId, socket) => {
+    Log.info(`User with peer id ${peerId} has exited via browser`);
+    socket.to(roomId).emit('removeUserVideo', peerId);
 };
 
 /**
@@ -132,7 +141,7 @@ const handleDisconnect = (roomId, userId, socket) => {
  * - Handles 'peerLeft' event for manual disconnects.
  */
 io.on('connection',(socket)=>{
-    Log(`User ${socket.id} has connected.`);
+    Log.info(`User with socket.id ${socket.id} has connected.`);
     
     // @todo perhaps it isn't necessary to add an additional join-room event. Maybe this can be done at the point of connecting to the ws server
     socket.on('join-room', (roomId, userId) => handleJoinRoon(roomId, userId, socket));
@@ -140,5 +149,5 @@ io.on('connection',(socket)=>{
 })
 
 
-peerServer.listen(()=> Log(`Peer server live at ${useHttps ? 'https' : 'http'}://${HOST}:9000`))
-httpServer.listen(PORT,()=>Log(`Listening at ${useHttps ? 'https' : 'http'}://${HOST}:${PORT}`))
+peerServer.listen(()=> console.log(`Peer server live at ${useHttps ? 'https' : 'http'}://${HOST}:9000`))
+httpServer.listen(PORT,()=>console.log(`Listening at ${useHttps ? 'https' : 'http'}://${HOST}:${PORT}`))

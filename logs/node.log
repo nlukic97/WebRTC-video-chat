@@ -1,0 +1,50 @@
+14:21:37.328 INFO  User with peer id 6ebe6487-aeca-4348-9659-31513f9e2f58 has exited via browser
+14:21:37.391 INFO  User with socket.id tW-E4Plqb4cEUrZFAAAN has connected.
+14:21:37.495 INFO  Peer with id 4124d234-b995-4511-9d3c-7257ea860d89 has requested to enter room 32c44dc9-e02c-4bad-b2cc-1771c75c5b6f.
+14:21:40.798 INFO  User with socket.id DuiJvUfHvwigfGqiAAAB has connected.
+14:21:40.904 INFO  Peer with id 96950927-d46e-40c2-8f56-83b906d0f0da has requested to enter room 32c44dc9-e02c-4bad-b2cc-1771c75c5b6f.
+14:21:48.072 INFO  User with socket.id U9ymFkk3DysrBd36AAAB has connected.
+14:21:51.305 INFO  User with socket.id iuOzM0WzUKAmbN_-AAAB has connected.
+14:23:08.759 INFO  User with socket.id Cy55j-55M8fmLCQxAAAB has connected.
+14:23:10.727 INFO  User with socket.id -Bh3A075DnHiWsMNAAAB has connected.
+14:23:22.507 INFO  User with socket.id -DJtaTukLkzPdKPaAAAB has connected.
+14:23:26.013 INFO  User with socket.id La5v4G3r04EgddJaAAAB has connected.
+14:23:26.986 INFO  User with socket.id pOCT7WuLamPoE7tQAAAB has connected.
+14:24:18.753 INFO  User with socket.id mahfnHMNtI_swvxEAAAB has connected.
+14:24:20.487 INFO  User with socket.id _aKTNIKRBrCiR2HWAAAB has connected.
+14:24:22.132 INFO  User with socket.id SBltGZ9_d4HkYpBfAAAB has connected.
+14:24:25.355 INFO  User with socket.id ITLD7Xo5dsiSGU0hAAAB has connected.
+14:24:31.710 INFO  User with socket.id nZVTdo7HoOriQi3QAAAB has connected.
+14:24:47.024 INFO  User with socket.id WQuy4fEC10LwwXXRAAAB has connected.
+14:24:57.731 INFO  User with socket.id jddGQqiWRPTUufbtAAAB has connected.
+14:25:21.524 INFO  User with socket.id wN2B07EZmixE3tFcAAAB has connected.
+14:25:25.967 INFO  User with socket.id nkYykwfkyWTD9lP_AAAB has connected.
+14:25:38.375 INFO  User with socket.id LYZNOTe_hu5EKEfOAAAB has connected.
+14:25:47.199 INFO  User with socket.id 7SrZ6HZNu8Xga6sfAAAB has connected.
+14:25:50.067 INFO  User with socket.id E7pvmfB7qjmkL_nLAAAB has connected.
+14:26:20.361 INFO  User with socket.id SNCBWO0Bz5wuuT3bAAAB has connected.
+14:26:37.074 INFO  User with socket.id 0ssFAaJ7f5qPJFPRAAAB has connected.
+14:26:51.607 INFO  User with socket.id 3fo3-I76_xpGiZ3HAAAB has connected.
+14:26:53.155 INFO  User with socket.id IN8kuydcRVeDHksdAAAB has connected.
+14:27:10.705 INFO  User with socket.id AQ3wdrf4YeOKIeSlAAAB has connected.
+14:27:14.958 INFO  User with socket.id S-er2e5RQCtbXrhvAAAB has connected.
+14:27:16.384 INFO  User with socket.id ISJvRfIzUUpHUkPHAAAB has connected.
+14:27:21.799 INFO  User with socket.id Qk0AY9EFwD1n7QRKAAAB has connected.
+14:27:25.790 INFO  User with socket.id 9WiDwxqlo4Gn8szHAAAB has connected.
+14:27:43.864 INFO  User with socket.id h7hpRXBLTQYg80_OAAAB has connected.
+14:27:47.827 INFO  User with socket.id SdMUQlWGPn5wRnVCAAAB has connected.
+14:28:05.581 INFO  User with socket.id hrE3IPWnwc90N6DSAAAB has connected.
+14:28:26.841 INFO  User with socket.id O-muXYh0SgnnlXI_AAAB has connected.
+14:28:40.264 INFO  User with socket.id 2CLzHcUFGgaaT_5YAAAB has connected.
+14:28:42.066 INFO  User with socket.id pGGISsG83L9c5cobAAAB has connected.
+14:28:43.674 INFO  User with socket.id apSVsVPMX-lt0rpYAAAB has connected.
+14:29:19.880 INFO  User with socket.id gz5CY21CMeRxKxW5AAAB has connected.
+14:29:22.196 INFO  User with socket.id SmSw-INNqjhChbOTAAAB has connected.
+14:29:30.878 INFO  User with socket.id auUaajErkyNE_o9AAAAB has connected.
+14:29:31.388 INFO  User with socket.id zJ2sWnwe5ahuqImAAAAD has connected.
+14:29:31.534 INFO  Peer with id 6552e18a-b4fb-4d84-901f-5a8a68990227 has requested to enter room 32c44dc9-e02c-4bad-b2cc-1771c75c5b6f.
+14:29:33.981 INFO  User with socket.id FjbrheSe8p02yqLWAAAF has connected.
+14:29:34.114 INFO  Peer with id 95a7d228-7e8b-4990-bec1-43e4c7a283f7 has requested to enter room 32c44dc9-e02c-4bad-b2cc-1771c75c5b6f.
+14:29:52.765 INFO  FjbrheSe8p02yqLWAAAF has exited with the btn from peer. Sending him info to disconnect
+14:29:52.769 INFO  User with peer id 95a7d228-7e8b-4990-bec1-43e4c7a283f7 has exited via browser
+14:29:54.587 INFO  User with peer id 6552e18a-b4fb-4d84-901f-5a8a68990227 has exited via browser
