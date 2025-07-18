@@ -4,21 +4,23 @@ var myId; //later to be used to signal to others
 
 const videoGrid = document.getElementById('video-grid')
 const myVideo = document.createElement('video')
-myVideo.muted = true;
 
-const connectToNewUser = (userId, stream) => {
-    const call = peer.call(userId, stream)
+const connectToNewUser = (peerId, stream) => {
+    console.log(`User ${peerId} has joined the socket room. Contacting them...`);
+
+    const call = peer.call(peerId, stream)
     const video = document.createElement('video')
-    call.on('stream', uservideoStream => {
+
+    call.on('stream', userVideoStream => {
         console.log('got stream of other person')
-        addVideoStream(video, uservideoStream, userId)
+        addVideoStream(video, userVideoStream, peerId)
     })
 }
 
-const addVideoStream = (video, stream, vidId) =>{
+const addVideoStream = (video, stream, videoId) =>{
     video.srcObject = stream;
-    if(vidId){
-        video.id = vidId
+    if(videoId){
+        video.id = videoId
     }
     video.addEventListener('loadedmetadata',()=>{
         video.play()
@@ -30,15 +32,17 @@ const addVideoStream = (video, stream, vidId) =>{
 
 // switching between sharing screen and not sharing
 var sharingNow = false;
-async function toggleScreenShare(shareStatus){
-    if(shareStatus === false){
+
+async function toggleScreenShare(){
+    if(sharingNow === false){
         var myPeers = Object.keys(peer.connections)
         var shareScreen = await navigator.mediaDevices.getDisplayMedia()
         document.getElementById('shareScreen').firstChild.className = 'far fa-newspaper';
 
         for(let i = 0; i < myPeers.length; i++){
             var sender = peer.connections[myPeers[i]][0].peerConnection.getSenders()
-            sender[1].replaceTrack(shareScreen.getVideoTracks()[0])
+            const [track] = shareScreen.getVideoTracks()
+            sender[1].replaceTrack(track)
         }
         
         sharingNow = true;
@@ -57,10 +61,6 @@ async function toggleScreenShare(shareStatus){
         sharingNow = false;
     }
 }
-//event listener for the sharescreen toggle
-document.getElementById('shareScreen').addEventListener('click',()=>{
-    toggleScreenShare(sharingNow)
-})
 
 // ----------------------------------------------------------------------------------------
 
@@ -77,9 +77,6 @@ const toggleAudio = () =>{
     }
 }
 
-document.getElementById('toggleAudio').addEventListener('click',()=>{
-    toggleAudio()
-})
 
 
 //muting my video
@@ -94,9 +91,10 @@ const toggleVideo = () =>{
     }
 }
 
-document.getElementById('toggleVideo').addEventListener('click',()=>{
-    toggleVideo()
-})
+
+document.getElementById('toggleAudio').addEventListener('click',toggleAudio)
+document.getElementById('toggleVideo').addEventListener('click',toggleVideo)
+document.getElementById('shareScreen').addEventListener('click',toggleScreenShare)
 
 
 //connecting to peer from client
@@ -139,21 +137,10 @@ peer.on('open', id=>{
             })
         })
         
-        socket.on('user-connected',(userId)=>{
-            console.log(`User ${userId} has joined the socket room. Contacting them...`);
-            connectToNewUser(userId, stream)
-        })
+        socket.on('user-connected',(peerId)=> connectToNewUser(peerId, stream))
     
         //removing video of user who has disconnected from websocket
-        socket.on('removeUserVideo',disconnectedPeerId=>{
-            console.log(`Remove video id: ${disconnectedPeerId}`);
-    
-            var vidElement = document.getElementById(disconnectedPeerId) //delete element only if it exists. Error happens without this
-            if(vidElement){
-                vidElement.remove()
-                setHeightOfVideos()
-            }
-        })
+        socket.on('removeUserVideo', peerId => removeVideoElement(peerId));
     
         // -DISCONNECT FUNCTION - disconnecting this user from websocket. This will trigger the on.disconnected listener on the server.
         //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
@@ -164,7 +151,13 @@ peer.on('open', id=>{
     }) 
 })
 
-
+function removeVideoElement(id){
+    var vidElement = document.getElementById(id)
+    if(vidElement){
+        vidElement.remove()
+        setHeightOfVideos()
+    }
+}
    
 peer.on('connection',()=>{
     console.log('peer connection established');
