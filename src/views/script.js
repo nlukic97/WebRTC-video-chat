@@ -1,16 +1,18 @@
-const socket = io()
-
-var myId; //later to be used to signal to others
+let socket;
 
 const videoGrid = document.getElementById('video-grid')
 const myVideo = document.createElement('video')
 myVideo.muted = true; // ensures that we do not hear ourselves
+myVideo.playsInline = 'true'
 
-const connectToNewUser = (peerId, stream) => {
+const joinBtn = document.querySelector("#join-btn")
+
+const connectToNewUser = (peer, peerId, stream) => {
     console.log(`User ${peerId} has joined the socket room. Initiating peer call`);
 
     const call = peer.call(peerId, stream)
     const video = document.createElement('video')
+    video.playsInline = 'true'
 
     call.on('stream', userVideoStream => {
         console.log('got stream of other person')
@@ -34,7 +36,7 @@ const addVideoStream = (video, stream, videoId) =>{
 // switching between sharing screen and not sharing
 var sharingNow = false;
 
-async function toggleScreenShare(){
+async function toggleScreenShare(peer, myVideoStream){
     if(sharingNow === false){
         var myPeers = Object.keys(peer.connections)
         var shareScreen = await navigator.mediaDevices.getDisplayMedia()
@@ -66,8 +68,7 @@ async function toggleScreenShare(){
 // ----------------------------------------------------------------------------------------
 
 //muting my audio
-const toggleAudio = () =>{
-    console.log(myVideoStream);
+const toggleAudio = (myVideoStream) =>{
     const enabled = myVideoStream.getAudioTracks()[0].enabled
     if(enabled){
         myVideoStream.getAudioTracks()[0].enabled = false
@@ -81,7 +82,7 @@ const toggleAudio = () =>{
 
 
 //muting my video
-const toggleVideo = () =>{
+const toggleVideo = (myVideoStream) =>{
     const enabled = myVideoStream.getVideoTracks()[0].enabled;
     if(enabled){
         myVideoStream.getVideoTracks()[0].enabled = false
@@ -93,101 +94,6 @@ const toggleVideo = () =>{
 }
 
 
-document.getElementById('toggleAudio').addEventListener('click',toggleAudio)
-document.getElementById('toggleVideo').addEventListener('click',toggleVideo)
-document.getElementById('shareScreen').addEventListener('click',toggleScreenShare)
-
-
-//connecting to peer from client
-var peer = new Peer(undefined,{
-    host: window.location.hostname,
-    path:'/peerjs',
-    port: PEER_PORT,
-    iceServers: [
-        ...iceServers
-    ]
-})
-
-let myVideoStream;
-
-// first wait to connect to the peer server
-peer.on('open', id=>{
-    console.log('My peer ID is: ' + id);
-    myId = id;
-    
-    // after that wait for media stream
-    navigator.mediaDevices.getUserMedia({
-        video:true,
-        audio:true
-    }).then(stream => {
-        myVideoStream = stream;
-        addVideoStream(myVideo,stream)
-        
-        socket.emit('join-room', ROOM_ID, id)
-    
-        peer.on('call',call=>{
-            console.log('Received a call...')
-    
-            call.answer(stream)
-            const video = document.createElement('video')
-            call.on('stream',userVideoStream=>{
-                console.log(`User video stream received: ${userVideoStream}. Adding to our box`);
-                console.log(userVideoStream);
-                console.log(`Adding user ${call.peer}`);
-                addVideoStream(video,userVideoStream, call.peer)
-            })
-        })
-        
-        socket.on('user-connected',(peerId)=> connectToNewUser(peerId, stream))
-    
-        //removing video of user who has disconnected from websocket
-        socket.on('removeUserVideo', peerId => removeVideoElement(peerId));
-    
-        // -DISCONNECT FUNCTION - disconnecting this user from websocket. This will trigger the on.disconnected listener on the server.
-        //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
-        socket.on('forceDisconnect',msg=>{
-            socket.close()
-            console.log(`You have been disconnected from websocket. The road ends here. `);
-        })
-    }) 
-})
-
-function removeVideoElement(id){
-    var vidElement = document.getElementById(id)
-    if(vidElement){
-        vidElement.remove()
-        setHeightOfVideos()
-    }
-}
-   
-peer.on('connection',()=>{
-    console.log('peer connection established');
-})
-
-
-//client click to end call and stays in browser
-document.getElementById('destroyPeer').addEventListener('click',()=>{
-
-    peer.destroy()
-
-    //removing all videos for client who is leaving.
-    var videoNodes = document.querySelectorAll('video')
-    videoNodes.forEach(node=>{
-        node.remove()
-    })
-})
-
-//once disconnected from peer, we tell the server this. The server will tell disconnect this user from websocket (see -DISCONNECT FUNCTION - )
-peer.on('close',()=>{
-    console.log(`Peer destroyed : ${peer.destroyed}. Letting Everyone else on in the room know.`);
-    socket.emit('peerLeft',myId)
-})
-
-peer.on('disconnected',()=>{
-    console.log('Peer disconnected');
-})
-
-//----- styling
 const setHeightOfVideos = () =>{
     var height = document.getElementById('canvas').clientHeight
     console.log(height);
@@ -204,7 +110,119 @@ const setHeightOfVideos = () =>{
     })
 }
 
-window.addEventListener('resize',()=>{
-    setHeightOfVideos()
-})
 
+
+const connect = () => {
+    joinBtn.classList.add('hidden')
+
+    //connecting to peer from client
+    var peer = new Peer(undefined,{
+        host: window.location.hostname,
+        path:'/peerjs',
+        port: PEER_PORT,
+        iceServers: [
+            ...iceServers
+        ]
+    })
+    
+    let myVideoStream;
+    
+    // first wait to connect to the peer server
+    peer.on('open', async (peerId)=>{
+
+        socket = io({
+            query: {
+                roomId: window.location.pathname.split('/').pop(),
+                peerId: peerId
+            }
+        })
+
+        document.getElementById('toggleAudio').addEventListener('click',()=> toggleAudio(myVideoStream))
+        document.getElementById('toggleVideo').addEventListener('click',()=> toggleVideo(myVideoStream))
+        document.getElementById('shareScreen').addEventListener('click',()=> toggleScreenShare(peer, myVideoStream))
+        window.addEventListener('resize',setHeightOfVideos)
+        
+        document.querySelector('#buttons').classList.remove('hidden')
+        
+        console.log('My peer ID is: ' + peerId);
+        
+        // after that wait for media stream
+        navigator.mediaDevices.getUserMedia({
+            video:true,
+            audio:true
+        }).then( (stream) => {
+            myVideoStream = stream;
+            addVideoStream(myVideo,stream)
+            
+            
+        
+            peer.on('call',call=>{
+                console.log('Received a call...')
+        
+                call.answer(stream)
+                
+                const video = document.createElement('video')
+                video.playsInline = 'true'
+
+                call.on('stream',userVideoStream=>{
+                    console.log(`User video stream received: ${userVideoStream} for peer ${call.peer}. Adding their video to our box`);
+                    addVideoStream(video,userVideoStream, call.peer)
+                })
+            })
+
+            socket.emit('joinRoom', ROOM_ID, peerId)
+            
+            socket.on('userConnected', peerId => connectToNewUser(peer, peerId, stream))
+        
+            //removing video of user who has disconnected from websocket
+            socket.on('removeUserVideo', peerId => removeVideoElement(peerId));
+        
+            // -DISCONNECT FUNCTION - disconnecting this user from websocket. This will trigger the on.disconnected listener on the server.
+            //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
+            socket.on('forceDisconnect',() => {
+                socket.close()
+                console.log(`You have been disconnected from websocket. The road ends here. `);
+            })
+        }) 
+    })
+
+    peer.on('connection',()=>{
+        console.log('peer connection established');
+    })
+
+    //once disconnected from peer, we tell the server this. The server will tell disconnect this user from websocket (see -DISCONNECT FUNCTION - )
+    peer.on('close',(id)=>{
+        console.log(`Peer destroyed : ${peer.destroyed}. Letting Everyone else on in the room know.`);
+        socket.emit('peerLeft',id)
+    })
+
+    peer.on('disconnected',()=>{
+        console.log('Peer disconnected');
+    })
+
+    //client click to end call and stays in browser
+    document.getElementById('destroyPeer').addEventListener('click',()=>{
+
+        peer.destroy()
+
+        //removing all videos for client who is leaving.
+        var videoNodes = document.querySelectorAll('video')
+        videoNodes.forEach(node=>{
+            node.remove()
+        })
+
+        joinBtn.querySelector('button').innerText = 'Re-join Call'
+        joinBtn.classList.remove('hidden')
+        document.querySelector('#buttons').classList.add('hidden')
+    })
+}
+
+function removeVideoElement(id){
+    var vidElement = document.getElementById(id)
+    if(vidElement){
+        vidElement.remove()
+        setHeightOfVideos()
+    }
+}
+
+joinBtn.addEventListener('click',connect)

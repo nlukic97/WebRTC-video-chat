@@ -1,3 +1,4 @@
+/* css */
 body {
     margin: 0;
     padding: 0;
@@ -120,4 +121,42 @@ video {
 
 #toggleAudio:hover {
     background-color: rgb(65, 64, 64);
+}
+
+/* utility classes */
+.hidden {
+    display: none!important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+#join-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 30px auto;
+}
+
+#join-btn button {
+    padding: 14px 36px;
+    font-size: 1.2rem;
+    background-color: #2d8cff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background-color 0.2s, transform 0.1s;
+    outline: none;
+}
+
+#join-btn button:hover, #join-btn button:focus {
+    background-color: #1761b6;
+    transform: translateY(-2px) scale(1.03);
+}
+
+#join-btn.vanish {
+    display: none !important;
 }

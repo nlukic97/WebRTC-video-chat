@@ -86,14 +86,14 @@ app.use((_, res) => res.status(404).send('404 Not Found'));
  * Behavior:
  * - Logs the user's request to join the room.
  * - Adds the user's socket to the specified room.
- * - Notifies other users in the room that a new user has connected by emitting 'user-connected' with the userId.
+ * - Notifies other users in the room that a new user has connected by emitting 'userConnected' with the userId.
  * - Sets up a listener for the 'disconnect' event on the socket, which will call handleDisconnect when triggered.
  */
 const handleJoinRoon = async (roomId, peerId, socket) => {
     Log.info(`Peer with id ${peerId} has requested to enter room ${roomId}.`);
     await socket.join(roomId);
 
-    socket.to(roomId).emit('user-connected', peerId);
+    socket.to(roomId).emit('userConnected', peerId);
     socket.on('disconnect', () => handleDisconnect(roomId, peerId, socket));
 };
 
@@ -137,14 +137,13 @@ const handleDisconnect = (roomId, peerId, socket) => {
  * 
  * Sets up socket event listeners for each new client connection.
  * - Logs when a user connects.
- * - Handles 'join-room' event to join a room.
+ * - Handles 'joinRoom' event to join a room.
  * - Handles 'peerLeft' event for manual disconnects.
  */
 io.on('connection',(socket)=>{
     Log.info(`User with socket.id ${socket.id} has connected.`);
     
-    // @todo perhaps it isn't necessary to add an additional join-room event. Maybe this can be done at the point of connecting to the ws server
-    socket.on('join-room', (roomId, userId) => handleJoinRoon(roomId, userId, socket));
+    socket.on('joinRoom', (roomId, userId) => handleJoinRoon(roomId, userId, socket));
     socket.on('peerLeft', () => handleManualDisconnect(socket));
 })
 
