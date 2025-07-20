@@ -18,6 +18,7 @@ import { fileURLToPath } from 'url';
 import Logger from "./utils/Log.js";
 
 import { iceServers as iceServersList } from "./utils/iceServers.js";
+// import { getMemoryUsageMessage, getCpuUsageMessage } from "./utils/LogMemoryUsage.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -146,7 +147,6 @@ io.on('connection',(socket)=>{
     socket.on('joinRoom', (roomId, userId) => handleJoinRoon(roomId, userId, socket));
     socket.on('peerLeft', () => handleManualDisconnect(socket));
 })
-
 
 peerServer.listen(()=> console.log(`Peer server live at ${useHttps ? 'https' : 'http'}://${HOST}:9000`))
 httpServer.listen(PORT,()=>console.log(`Listening at ${useHttps ? 'https' : 'http'}://${HOST}:${PORT}`))
