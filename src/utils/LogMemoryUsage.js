@@ -14,7 +14,10 @@ export function getMemoryUsageMessage() {
 export function getCpuUsageMessage() {
     const cpus = os.cpus();
     const totalIdle = cpus.reduce((acc, cpu) => acc + cpu.times.idle, 0);
-    const totalTick = cpus.reduce((acc, cpu) => acc + Object.values(cpu.times).reduce((a, b) => a + b, 0), 0);
+    const totalTick = cpus.reduce(
+        (acc, cpu) => acc + Object.values(cpu.times).reduce((a, b) => a + b, 0),
+        0
+    );
 
     const totalUsage = totalTick - totalIdle;
     const usagePercentage = ((totalUsage / totalTick) * 100).toFixed(2);

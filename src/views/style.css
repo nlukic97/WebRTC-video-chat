@@ -7,17 +7,18 @@ body {
 }
 
 .red {
-    color: red!important;
+    color: red !important;
 }
 
 a {
-    color:#fff;
+    color: #fff;
     text-decoration: none;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family:
+        'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: 18px;
     position: absolute;
-    left:2%;
-    top:3%;
+    left: 2%;
+    top: 3%;
     transition: 0.3s;
 }
 
@@ -25,12 +26,11 @@ a:hover {
     transform: scale(1.6);
     cursor: pointer;
     transform: scale(1.1);
-    
 }
 
-#canvas{
+#canvas {
     display: flex;
-    height:100%;
+    height: 100%;
     flex-direction: column;
     justify-content: center;
 }
@@ -41,7 +41,7 @@ a:hover {
 }
 
 video {
-    height:300px;
+    height: 300px;
     /* width: 400px; */
     object-fit: cover;
 }
@@ -58,25 +58,26 @@ video {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding:1px 0;
+    padding: 1px 0;
     background-color: rgb(44, 43, 43);
-    border-top:1px solid rgba(248, 248, 248, 0.219);
+    border-top: 1px solid rgba(248, 248, 248, 0.219);
 }
 
 #buttons div {
     padding: 10px 20px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family:
+        'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: 18px;
     color: #fff;
     border-radius: 10px;
-    border:1px solid rgba(248, 248, 248, 0.219);
+    border: 1px solid rgba(248, 248, 248, 0.219);
 }
 
 #buttons div:hover {
     cursor: pointer;
 }
 
-#buttons div:active{
+#buttons div:active {
     transform: scale(0.95);
 }
 
@@ -84,21 +85,21 @@ video {
     background-color: rgb(177, 14, 14);
 }
 
-#destroyPeer:hover{
+#destroyPeer:hover {
     background-color: rgb(197, 22, 22);
 }
 
 #videoOptions {
-    display: flex; 
+    display: flex;
     justify-content: space-around;
-    border:none!important;
+    border: none !important;
 }
 
 #videoOptions:active {
-    transform: none!important;
+    transform: none !important;
 }
 
-#toggleVideo{
+#toggleVideo {
     background-color: rgb(58, 57, 57);
     margin: 0 5px 0;
 }
@@ -125,7 +126,7 @@ video {
 
 /* utility classes */
 .hidden {
-    display: none!important;
+    display: none !important;
 }
 
 .text-center {
@@ -147,12 +148,15 @@ video {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition:
+        background-color 0.2s,
+        transform 0.1s;
     outline: none;
 }
 
-#join-btn button:hover, #join-btn button:focus {
+#join-btn button:hover,
+#join-btn button:focus {
     background-color: #1761b6;
     transform: translateY(-2px) scale(1.03);
 }
