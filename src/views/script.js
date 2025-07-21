@@ -1,12 +1,17 @@
 /* eslint-disable no-console */
-let socket;
-
 const videoGrid = document.getElementById('video-grid');
+const joinBtn = document.querySelector('#join-btn');
+
+const toggleAudioEl = document.getElementById('toggleAudio');
+const toggleVideoEl = document.getElementById('toggleVideo');
+const shareScreenEl = document.getElementById('toggleVideo');
+
 const myVideo = document.createElement('video');
 myVideo.muted = true; // ensures that we do not hear ourselves
 myVideo.playsInline = 'true';
 
-const joinBtn = document.querySelector('#join-btn');
+let socket;
+let sharingNow = false;
 
 const connectToNewUser = (peer, peerId, stream) => {
     console.log(
@@ -17,27 +22,26 @@ const connectToNewUser = (peer, peerId, stream) => {
     const video = document.createElement('video');
     video.playsInline = 'true';
 
-    call.on('stream', (userVideoStream) => {
-        console.log('got stream of other person');
-        addVideoStream(video, userVideoStream, peerId);
-    });
+    call.on('stream', (userVideoStream) =>
+        addVideoStream(video, userVideoStream, peerId)
+    );
 };
 
 const addVideoStream = (video, stream, videoId) => {
     video.srcObject = stream;
+
     if (videoId) {
         video.id = videoId;
     }
+
     video.addEventListener('loadedmetadata', () => {
         video.play();
     });
-    videoGrid.append(video);
-    setHeightOfVideos(); //added
-};
-// ----------------------------------------------------------------------------------
 
-// switching between sharing screen and not sharing
-var sharingNow = false;
+    videoGrid.append(video);
+
+    setHeightOfVideos();
+};
 
 async function toggleScreenShare(peer, myVideoStream) {
     let sender;
@@ -45,8 +49,7 @@ async function toggleScreenShare(peer, myVideoStream) {
 
     if (sharingNow === false) {
         var shareScreen = await navigator.mediaDevices.getDisplayMedia();
-        document.getElementById('shareScreen').firstChild.className =
-            'far fa-newspaper';
+        shareScreenEl.firstChild.className = 'far fa-newspaper';
 
         for (let i = 0; i < myPeers.length; i++) {
             sender =
@@ -58,8 +61,7 @@ async function toggleScreenShare(peer, myVideoStream) {
         sharingNow = true;
         document.querySelectorAll('video')[0].srcObject = shareScreen;
     } else {
-        document.getElementById('shareScreen').firstChild.className =
-            'far fa-newspaper red'; //no good symbol for sharing screen
+        shareScreenEl.firstChild.className = 'far fa-newspaper red'; //no good symbol for sharing screen
 
         for (let i = 0; i < myPeers.length; i++) {
             sender =
@@ -73,41 +75,33 @@ async function toggleScreenShare(peer, myVideoStream) {
     }
 }
 
-// ----------------------------------------------------------------------------------------
-
-//muting my audio
 const toggleAudio = (myVideoStream) => {
-    const enabled = myVideoStream.getAudioTracks()[0].enabled;
-    if (enabled) {
-        myVideoStream.getAudioTracks()[0].enabled = false;
-        document.getElementById('toggleAudio').firstChild.className =
-            'fas fa-microphone-alt-slash red';
+    const [audioTrack] = myVideoStream.getAudioTracks();
+    if (audioTrack.enabled) {
+        audioTrack.enabled = false;
+        toggleAudioEl.firstChild.className = 'fas fa-microphone-alt-slash red';
     } else {
-        myVideoStream.getAudioTracks()[0].enabled = true;
-        document.getElementById('toggleAudio').firstChild.className =
-            'fas fa-microphone-alt';
+        audioTrack.enabled = true;
+        toggleAudioEl.firstChild.className = 'fas fa-microphone-alt';
     }
 };
 
 //muting my video
 const toggleVideo = (myVideoStream) => {
-    const enabled = myVideoStream.getVideoTracks()[0].enabled;
-    if (enabled) {
-        myVideoStream.getVideoTracks()[0].enabled = false;
-        document.getElementById('toggleVideo').firstChild.className =
-            'fas fa-video-slash red';
+    const [videoTrack] = myVideoStream.getVideoTracks();
+    if (videoTrack.enabled) {
+        videoTrack.enabled = false;
+        toggleVideoEl.firstChild.className = 'fas fa-video-slash red';
     } else {
-        myVideoStream.getVideoTracks()[0].enabled = true;
-        document.getElementById('toggleVideo').firstChild.className =
-            'fas fa-video';
+        videoTrack.enabled = true;
+        toggleVideoEl.firstChild.className = 'fas fa-video';
     }
 };
-const a = 2;
-console.warn(a);
+
 const setHeightOfVideos = () => {
-    var height = document.getElementById('canvas').clientHeight;
-    console.log(height);
-    var videos = document.querySelectorAll('video');
+    const height = document.getElementById('canvas').clientHeight;
+    const videos = document.querySelectorAll('video');
+
     videos.forEach((video) => {
         if (videos.length <= 2) {
             video.style.height = height / 2 + 'px';
@@ -123,8 +117,9 @@ const connect = () => {
     joinBtn.classList.add('hidden');
 
     //connecting to peer from client
+
     // eslint-disable-next-line no-undef
-    var peer = new Peer(undefined, {
+    const peer = new Peer(undefined, {
         host: window.location.hostname,
         path: '/peerjs',
         // eslint-disable-next-line no-undef
@@ -150,14 +145,17 @@ const connect = () => {
         document
             .getElementById('toggleAudio')
             .addEventListener('click', () => toggleAudio(myVideoStream));
+
         document
             .getElementById('toggleVideo')
             .addEventListener('click', () => toggleVideo(myVideoStream));
+
         document
             .getElementById('shareScreen')
             .addEventListener('click', () =>
                 toggleScreenShare(peer, myVideoStream)
             );
+
         window.addEventListener('resize', setHeightOfVideos);
 
         document.querySelector('#buttons').classList.remove('hidden');
@@ -234,7 +232,7 @@ const connect = () => {
         peer.destroy();
 
         //removing all videos for client who is leaving.
-        var videoNodes = document.querySelectorAll('video');
+        const videoNodes = document.querySelectorAll('video');
         videoNodes.forEach((node) => {
             node.remove();
         });
@@ -246,7 +244,7 @@ const connect = () => {
 };
 
 function removeVideoElement(id) {
-    var vidElement = document.getElementById(id);
+    const vidElement = document.getElementById(id);
     if (vidElement) {
         vidElement.remove();
         setHeightOfVideos();
