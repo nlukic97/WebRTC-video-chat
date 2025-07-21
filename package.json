@@ -1,21 +1,34 @@
 {
-  "name": "video-chat",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "nodemon server.js",
-    "update heroku":"git add . && git commit -m'update' && git push heroku master"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "ejs": "^3.1.5",
-    "express": "^4.17.1",
-    "nodemon": "^2.0.6",
-    "peer": "^0.5.3",
-    "socket.io": "^3.0.1",
-    "uuid": "^8.3.1"
-  }
+    "name": "WebRTC-video-chat",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node ./src/server.js",
+        "dev": "nodemon ./src/server.js",
+        "eslint": "eslint",
+        "eslint:fix": "eslint . --fix",
+        "prettier": "prettier . --check",
+        "prettier:fix": "prettier . --write"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "dotenv": "^16.5.0",
+        "ejs": "^3.1.10",
+        "express": "^5.1.0",
+        "nodemon": "^3.1.10",
+        "peer": "^1.0.2",
+        "socket.io": "^4.8.1",
+        "uuid": "^11.1.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.31.0",
+        "eslint": "^9.31.0",
+        "eslint-config-prettier": "^10.1.8",
+        "globals": "^16.3.0",
+        "prettier": "3.6.2"
+    }
 }
