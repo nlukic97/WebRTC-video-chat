@@ -1,6 +1,6 @@
 import os from 'os';
 
-export function getMemoryUsageMessage() {
+export function getMemoryUsageMessage(): string {
     const total = os.totalmem();
     const free = os.freemem();
     const used = total - free;
@@ -11,7 +11,7 @@ export function getMemoryUsageMessage() {
     return `Memory Usage: Used ${usedMB} MB / Total ${totalMB} MB (Free: ${freeMB} MB)`;
 }
 
-export function getCpuUsageMessage() {
+export function getCpuUsageMessage(): string {
     const cpus = os.cpus();
     const totalIdle = cpus.reduce((acc, cpu) => acc + cpu.times.idle, 0);
     const totalTick = cpus.reduce(

@@ -1,38 +1,21 @@
 import fs from 'fs';
 import path from 'path';
 
-const logFilePath = path.resolve('./logs/node.log');
-
 /**
  * Logger
  *
- * A simple logging utility that writes log messages to a file and, in non-production environments, also to the console.
- *
- * Constructor:
- *   - new Logger(env)
- *     - env: string (e.g., 'production', 'development', etc.)
- *     - Initializes the logger with the given environment and sets the log file path.
- *
+ * A simple logging utility that writes log messages to a file and,
+ * in non-production environments, also to the console.
  * Methods:
  *   - info(msg: string): void
  *     - Logs an informational message.
- *     - Prepends the message with a timestamp and "INFO".
- *     - Writes the log to the log file and, if not in production, also to the console.
  *
  *   - warn(msg: string): void
  *     - Logs a warning message.
- *     - Prepends the message with a timestamp and "WARN".
- *     - Writes the log to the log file and, if not in production, also to the console.
  *
  *   - error(msg: string): void
  *     - Logs an error message.
- *     - Prepends the message with a timestamp and "ERROR".
- *     - Writes the log to the log file and, if not in production, also to the console.
  *
- * Private Methods:
- *   - #_log(type: string, msg: string): void
- *     - Internal method to format and write the log message.
- *     - Used by info, warn, and error.
  *
  * Example usage:
  *   const logger = new Logger(process.env.ENV);
@@ -41,12 +24,17 @@ const logFilePath = path.resolve('./logs/node.log');
  *   logger.error('Unhandled exception');
  */
 export default class Logger {
-    constructor(env) {
+    env: string;
+    logFilePath: string;
+    constructor(env: string) {
+        if (env !== 'dev' && env !== 'production') {
+            throw new Error('ENV is not set correctly.');
+        }
         this.env = env;
-        this.logFilePath = logFilePath;
+        this.logFilePath = path.resolve('./logs/node.log');
     }
 
-    #_log(type, msg) {
+    #_log(type: string, msg: string) {
         const line = `${this.#_getTimestamp()} ${type}  ${msg}`;
         fs.appendFileSync(this.logFilePath, line + '\n', { encoding: 'utf8' });
         if (this.env !== 'production') {
@@ -55,13 +43,13 @@ export default class Logger {
         }
     }
 
-    #_pad(num, size = 2) {
+    #_pad(num: number, size: number = 2): string {
         let s = String(num);
         while (s.length < size) s = '0' + s;
         return s;
     }
 
-    #_getTimestamp() {
+    #_getTimestamp(): string {
         const now = new Date();
         const weekday = now.toLocaleString('en-US', { weekday: 'long' });
         const day = this.#_pad(now.getDate());
@@ -74,15 +62,15 @@ export default class Logger {
         return `${weekday} ${day}/${month}/${year} ${h}:${m}:${s}.${ms}`;
     }
 
-    info(msg) {
+    info(msg: string): void {
         this.#_log('INFO', msg);
     }
 
-    warn(msg) {
+    warn(msg: string): void {
         this.#_log('WARN', msg);
     }
 
-    error(msg) {
+    error(msg: string): void {
         this.#_log('ERROR', msg);
     }
 }
