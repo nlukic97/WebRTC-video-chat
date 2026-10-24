@@ -26,6 +26,13 @@ import path from 'path';
 export default class Logger {
     env: string;
     logFilePath: string;
+    colors = {
+        reset: '\x1b[0m',
+        red: '\x1b[31m',
+        green: '\x1b[32m',
+        yellow: '\x1b[33m',
+        blue: '\x1b[34m',
+    };
     constructor(env: string) {
         if (env !== 'dev' && env !== 'production') {
             throw new Error('ENV is not set correctly.');
@@ -34,12 +41,15 @@ export default class Logger {
         this.logFilePath = path.resolve('./logs/node.log');
     }
 
-    #_log(type: string, msg: string) {
-        const line = `${this.#_getTimestamp()} ${type}  ${msg}`;
-        fs.appendFileSync(this.logFilePath, line + '\n', { encoding: 'utf8' });
+    #_log(type: string, color: string, msg: string) {
+        const printLine = `${this.#_getTimestamp()} ${color + type + this.colors.reset} ${msg}`;
+        const logWriteLine = `${this.#_getTimestamp()} ${type} ${msg}`;
+        fs.appendFileSync(this.logFilePath, logWriteLine + '\n', {
+            encoding: 'utf8',
+        });
         if (this.env !== 'production') {
             // eslint-disable-next-line no-console
-            console.log(line);
+            console.log(printLine);
         }
     }
 
@@ -51,7 +61,7 @@ export default class Logger {
 
     #_getTimestamp(): string {
         const now = new Date();
-        const weekday = now.toLocaleString('en-US', { weekday: 'long' });
+        // const weekday = now.toLocaleString('en-US', { weekday: 'long' });
         const day = this.#_pad(now.getDate());
         const month = this.#_pad(now.getMonth() + 1); // Months are zero-based
         const year = now.getFullYear();
@@ -59,18 +69,18 @@ export default class Logger {
         const m = this.#_pad(now.getMinutes());
         const s = this.#_pad(now.getSeconds());
         const ms = this.#_pad(now.getMilliseconds(), 3);
-        return `${weekday} ${day}/${month}/${year} ${h}:${m}:${s}.${ms}`;
+        return `${year}/${month}/${day} ${h}:${m}:${s}.${ms}`;
     }
 
     info(msg: string): void {
-        this.#_log('INFO', msg);
+        this.#_log('INFO', this.colors.green, msg);
     }
 
     warn(msg: string): void {
-        this.#_log('WARN', msg);
+        this.#_log('WARN', this.colors.yellow, msg);
     }
 
     error(msg: string): void {
-        this.#_log('ERROR', msg);
+        this.#_log('ERROR', this.colors.red, msg);
     }
 }
