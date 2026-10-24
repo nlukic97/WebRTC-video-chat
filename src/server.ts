@@ -1,72 +1,40 @@
-import fs from 'fs';
+import Logger from './lib/Log.ts';
 import express from 'express';
-
-import dotenv from 'dotenv';
-dotenv.config();
-
+import { Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
+import { readFileSync } from 'fs';
+import { createHttpServer } from './infra/httpServer.ts';
+import { createPeerServer } from './infra/peerServer.ts';
+import { iceServers as iceServersList } from './config/iceServers.ts';
+import { ENV, HOST, PEER_PORT, PORT, useHttps } from './config/env.ts';
+import { createSocketServer } from './infra/socketServer.ts';
+// import { getMemoryUsageMessage, getCpuUsageMessage } from "./lib/LogMemoryUsage.ts";
 
-import { createServer as createServerHttp, Server } from 'http';
-import { createServer as createServerHttps } from 'https';
+const __dirname = import.meta.dirname;
 
-import { Socket, Server as SocketServer } from 'socket.io';
-import { PeerServer } from 'peer';
+// logger
+const Log = new Logger(ENV);
 
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+// getting certs
+const ssl = useHttps
+    ? {
+          key: readFileSync(__dirname + '/../cert/selfsigned.key', 'utf8'),
+          cert: readFileSync(__dirname + '/../cert/selfsigned.crt', 'utf8'),
+      }
+    : undefined;
 
-import Logger from './utils/Log.ts';
-
-import { iceServers as iceServersList } from './utils/iceServers.ts';
-// import { getMemoryUsageMessage, getCpuUsageMessage } from "./utils/LogMemoryUsage.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 443;
-const PEER_PORT: number = Number(process.env.PEER_PORT) || 9000;
-
+// init servers
 const app = express();
-let key: string | undefined;
-let cert: string | undefined;
-let httpServer: Server;
+const httpServer = createHttpServer(app, ssl);
+const peerServer = createPeerServer(PEER_PORT, ssl);
+const io = createSocketServer(httpServer);
 
-const useHttps =
-    process.env.USE_HTTPS === 'true'
-        ? true
-        : process.env.USE_HTTPS === 'false'
-          ? false
-          : undefined;
-if (useHttps === undefined)
-    throw new Error('Please set useHttps to either "true" or "false"');
-
-if (useHttps) {
-    // 1. https server
-    key = fs.readFileSync(__dirname + '/../cert/selfsigned.key', 'utf8');
-    cert = fs.readFileSync(__dirname + '/../cert/selfsigned.crt', 'utf8');
-    httpServer = createServerHttps({ key, cert }, app);
-} else {
-    // 2. http server
-    httpServer = createServerHttp(app);
-}
-
-// PeerServer
-const peerServer = PeerServer({
-    port: PEER_PORT,
-    path: '/peerjs',
-    ssl: useHttps && key && cert ? { key, cert } : undefined,
-});
-
-if (!process.env.ENV) {
-    throw new Error('Please set ENV');
-}
-const Log = new Logger(process.env.ENV);
-
+// set up views
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/views'));
 app.set('views', __dirname + '/views');
 
-/** Routes */
+// routes
 app.get('/', (_, res) => res.redirect(`/${uuidv4()}`));
 
 app.get('/:room', (req, res) =>
@@ -102,8 +70,6 @@ const handleDisconnect = (roomId: string, peerId: string, socket: Socket) => {
     Log.info(`User with peer id ${peerId} has exited via browser`);
     socket.to(roomId).emit('removeUserVideo', peerId);
 };
-
-const io = new SocketServer(httpServer);
 
 io.on('connection', (socket: Socket) => {
     Log.info(`User with socket.id ${socket.id} has connected.`);
