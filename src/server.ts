@@ -1,13 +1,13 @@
 import Logger from './lib/Log.ts';
 import express from 'express';
 import { Socket } from 'socket.io';
-import { v4 as uuidv4 } from 'uuid';
 import { readFileSync } from 'fs';
 import { createHttpServer } from './infra/httpServer.ts';
 import { createPeerServer } from './infra/peerServer.ts';
 import { iceServers as iceServersList } from './config/iceServers.ts';
 import { ENV, HOST, PEER_PORT, PORT, useHttps } from './config/env.ts';
 import { createSocketServer } from './infra/socketServer.ts';
+import { createRoomRouter } from './domains/room/room.routes.ts';
 // import { getMemoryUsageMessage, getCpuUsageMessage } from "./lib/LogMemoryUsage.ts";
 
 const __dirname = import.meta.dirname;
@@ -35,15 +35,7 @@ app.use(express.static(__dirname + '/views'));
 app.set('views', __dirname + '/views');
 
 // routes
-app.get('/', (_, res) => res.redirect(`/${uuidv4()}`));
-
-app.get('/:room', (req, res) =>
-    res.render('room/index', {
-        roomId: req.params.room,
-        peerPort: PEER_PORT,
-        iceServers: JSON.stringify(iceServersList),
-    })
-);
+app.use(createRoomRouter({ peerPort: PEER_PORT, iceServers: iceServersList }));
 
 app.use((_, res) => res.status(404).send('404 Not Found'));
 
