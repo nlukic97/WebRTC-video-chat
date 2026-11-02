@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { createRoomId } from './room.service.ts';
 
 type RoomRoutesDeps = {
     peerPort: number;
@@ -13,15 +13,19 @@ export const createRoomRouter = ({
     const router = Router();
 
     // a new visitor gets a fresh room
-    router.get('/', (_, res) => res.redirect(`/${uuidv4()}`));
+    router.get('/', (_, res) => {
+        const roomId = createRoomId();
+        return res.redirect(`/${roomId}`);
+    });
 
-    router.get('/:room', (req, res) =>
-        res.render('room/index', {
+    // Users join the :room room id
+    router.get('/:room', (req, res) => {
+        return res.render('room/index', {
             roomId: req.params.room,
             peerPort,
             iceServers: JSON.stringify(iceServers),
-        })
-    );
+        });
+    });
 
     return router;
 };

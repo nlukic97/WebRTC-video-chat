@@ -1,13 +1,14 @@
 import Logger from './lib/Log.ts';
 import express from 'express';
 import { readFileSync } from 'fs';
-import { createHttpServer } from './infra/httpServer.ts';
-import { createPeerServer } from './infra/peerServer.ts';
+import { createHttpServer } from './infra/http.server.ts';
+import { createPeerServer } from './infra/peer.server.ts';
 import { iceServers as iceServersList } from './config/iceServers.ts';
 import { ENV, HOST, PEER_PORT, PORT, useHttps } from './config/env.ts';
-import { createSocketServer } from './infra/socketServer.ts';
+import { createSocketServer } from './infra/socket.server.ts';
 import { createRoomRouter } from './domains/room/room.routes.ts';
 import { registerRoomSocket } from './domains/room/room.socket.ts';
+import { initMediasoup } from './infra/mediasoup.server.ts';
 // import { getMemoryUsageMessage, getCpuUsageMessage } from "./lib/LogMemoryUsage.ts";
 
 const __dirname = import.meta.dirname;
@@ -28,6 +29,12 @@ const app = express();
 const httpServer = createHttpServer(app, ssl);
 const peerServer = createPeerServer(PEER_PORT, ssl);
 const io = createSocketServer(httpServer);
+
+// mediasoup
+
+// @todo remove later when this is used
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { worker, router, webRtcServer } = await initMediasoup(Log);
 
 // set up views
 app.set('view engine', 'ejs');
@@ -51,3 +58,11 @@ peerServer.listen(() =>
 httpServer.listen(PORT, () =>
     Log.info(`Listening at ${useHttps ? 'https' : 'http'}://${HOST}:${PORT}`)
 );
+
+const shutdown = (signal: string) => {
+    Log.info(`${signal} received, shutting down`);
+    process.exit(0);
+};
+
+process.once('SIGTERM', () => shutdown('SIGTERM'));
+process.once('SIGINT', () => shutdown('SIGINT')); // Ctrl+C
