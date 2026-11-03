@@ -7,9 +7,12 @@ import { iceServers as iceServersList } from './config/iceServers.ts';
 import { ENV, HOST, PEER_PORT, PORT, useHttps } from './config/env.ts';
 import { createSocketServer } from './infra/socket.server.ts';
 import { createRoomRouter } from './domains/room/room.routes.ts';
+import { createRoomRouter as createRoomRouterV2 } from './domains/room-v2/room.routes.ts';
 import { registerRoomSocket } from './domains/room/room.socket.ts';
-// import { initMediasoup } from './infra/mediasoup.server.ts';
+import { registerRoomSocket as registerRoomSocketV2 } from './domains/room-v2/room.socket.ts';
+import { initMediasoup } from './infra/mediasoup.server.ts';
 import { createRoomService } from './domains/room/room.service.ts';
+import { createRoomService as createRoomServiceV2 } from './domains/room-v2/room.service.ts';
 // import { getMemoryUsageMessage, getCpuUsageMessage } from "./lib/LogMemoryUsage.ts";
 
 const __dirname = import.meta.dirname;
@@ -32,9 +35,14 @@ const peerServer = createPeerServer(PEER_PORT, ssl);
 const io = createSocketServer(httpServer);
 
 // mediasoup
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// const { worker, webRtcServer } = await initMediasoup(Log);
+let worker, webRtcServer;
+try {
+    ({ worker, webRtcServer } = await initMediasoup(Log));
+} catch (err) {
+    Log.error('Error setting up mediasoup');
+    console.error(err);
+    process.exit(1);
+}
 
 // set up views
 app.set('view engine', 'ejs');
@@ -46,17 +54,23 @@ app.set('views', __dirname + '/views');
  * - router handlers
  * - socket handlers
  */
+// room v1 - uses the Peerjs - p2p webrtc
 const roomService = createRoomService();
-
 const roomRouter = createRoomRouter({
     roomService,
     peerPort: PEER_PORT,
     iceServers: iceServersList,
 });
-
 app.use(roomRouter);
-
 registerRoomSocket(io, { log: Log });
+
+// room v2
+const roomServiceV2 = createRoomServiceV2();
+const roomRouterV2 = createRoomRouterV2({
+    roomService: roomServiceV2,
+});
+app.use(roomRouterV2);
+registerRoomSocketV2(io.of('/v2'), { log: Log });
 
 // 404 route
 app.use((_, res) => res.status(404).send('404 Not Found'));

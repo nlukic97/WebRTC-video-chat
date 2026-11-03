@@ -3,21 +3,17 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Zoom clone</title>
+        <title>Zoom clone v2</title>
         <link rel="stylesheet" href="/style.css?v=25556" />
 
         <script src="/socket.io/socket.io.js"></script>
 
-        <!-- @todo - see to import peerjs, and fontawesome fron nodemodules, not cdn -->
-        <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
         <script
             src="https://kit.fontawesome.com/279db593be.js"
             crossorigin="anonymous"
         ></script>
         <script>
             const ROOM_ID = '<%= roomId %>';
-            const PEER_PORT = '<%= peerPort %>';
-            const iceServers = JSON.parse('<%- iceServers %>');
         </script>
     </head>
     <body>
@@ -36,13 +32,10 @@
                 </div>
             </div>
             <div id="buttons" class="hidden">
-                <div id="toggleAudio"><i class="fas fa-microphone"></i></div>
+                <!-- <div id="toggleAudio"><i class="fas fa-microphone"></i></div>
                 <div id="videoOptions">
                     <div id="toggleVideo"><i class="fas fa-video"></i></div>
-                    <div id="shareScreen">
-                        <i class="far fa-newspaper red"></i>
-                    </div>
-                </div>
+                </div> -->
                 <div id="destroyPeer">Exit call</div>
             </div>
         </div>
