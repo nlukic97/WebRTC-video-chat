@@ -9,6 +9,7 @@ import { createSocketServer } from './infra/socket.server.ts';
 import { createRoomRouter } from './domains/room/room.routes.ts';
 import { registerRoomSocket } from './domains/room/room.socket.ts';
 import { initMediasoup } from './infra/mediasoup.server.ts';
+import { createRoomService } from './domains/room/room.service.ts';
 // import { getMemoryUsageMessage, getCpuUsageMessage } from "./lib/LogMemoryUsage.ts";
 
 const __dirname = import.meta.dirname;
@@ -32,22 +33,33 @@ const io = createSocketServer(httpServer);
 
 // mediasoup
 
-// @todo remove later when this is used
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { worker, router, webRtcServer } = await initMediasoup(Log);
+const { worker, webRtcServer } = await initMediasoup(Log);
 
 // set up views
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/views'));
 app.set('views', __dirname + '/views');
 
-// routes
-app.use(createRoomRouter({ peerPort: PEER_PORT, iceServers: iceServersList }));
+/** room setup
+ * - service
+ * - router handlers
+ * - socket handlers
+ */
+const roomService = createRoomService();
 
-app.use((_, res) => res.status(404).send('404 Not Found'));
+const roomRouter = createRoomRouter({
+    roomService,
+    peerPort: PEER_PORT,
+    iceServers: iceServersList,
+});
 
-// sockets
+app.use(roomRouter);
+
 registerRoomSocket(io, { log: Log });
+
+// 404 route
+app.use((_, res) => res.status(404).send('404 Not Found'));
 
 peerServer.listen(() =>
     Log.info(

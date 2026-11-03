@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import { createRoomId } from './room.service.ts';
+import type { IRoomService } from './room.service.ts';
 
 type RoomRoutesDeps = {
+    roomService: IRoomService;
     peerPort: number;
     iceServers: { urls: string }[];
 };
 
 export const createRoomRouter = ({
+    roomService,
     peerPort,
     iceServers,
 }: RoomRoutesDeps): Router => {
@@ -14,7 +16,7 @@ export const createRoomRouter = ({
 
     // a new visitor gets a fresh room
     router.get('/', (_, res) => {
-        const roomId = createRoomId();
+        const roomId = roomService.createRoomId();
         return res.redirect(`/${roomId}`);
     });
 

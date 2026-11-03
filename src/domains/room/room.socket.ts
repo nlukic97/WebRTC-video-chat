@@ -20,13 +20,6 @@ export const registerRoomSocket = (io: RoomServer, { log }: RoomSocketDeps) => {
         socket.on('disconnect', () => handleDisconnect(roomId, peerId, socket));
     };
 
-    const handleManualDisconnect = (socket: RoomSocket) => {
-        log.info(
-            `${socket.id} has exited with the btn from peer. Sending him info to disconnect`
-        );
-        socket.emit('forceDisconnect');
-    };
-
     const handleDisconnect = (
         roomId: string,
         peerId: string,
@@ -42,6 +35,6 @@ export const registerRoomSocket = (io: RoomServer, { log }: RoomSocketDeps) => {
         socket.on('joinRoom', (roomId, peerId) =>
             handleJoinRoom(roomId, peerId, socket)
         );
-        socket.on('peerLeft', () => handleManualDisconnect(socket));
+        socket.on('peerLeft', () => socket.emit('forceDisconnect'));
     });
 };
