@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "ES2023",
-        "lib": ["ES2023"],
+        "lib": ["ES2023", "DOM"],
         "module": "nodenext",
         "moduleResolution": "nodenext",
         "types": ["node"],
@@ -15,6 +15,6 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true
     },
-    "include": ["src/**/*.ts"],
-    "exclude": ["node_modules", "src/client"]
+    "include": ["src/**/*.ts", "src/client/sfu-test.js"],
+    "exclude": ["node_modules", "src/views/**/*.js"]
 }

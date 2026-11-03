@@ -1,15 +1,15 @@
 import { v6 as uuidv6 } from 'uuid';
 
 export interface IRoomService {
-    createRoomId: () => string;
+    generateRandomRoomId: () => string;
 }
 
 export const createRoomService = (): IRoomService => {
-    const createRoomId = (): string => {
+    const generateRandomRoomId = (): string => {
         return uuidv6();
     };
 
-    return { createRoomId };
+    return { generateRandomRoomId };
 };
 
 //@todo change return type to uuidv6 if possible

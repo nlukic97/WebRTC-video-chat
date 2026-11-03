@@ -16,8 +16,24 @@ export const createRoomRouter = ({
 
     // a new visitor gets a fresh room
     router.get('/', (_, res) => {
-        const roomId = roomService.createRoomId();
+        const roomId = roomService.generateRandomRoomId();
         return res.redirect(`/${roomId}`);
+    });
+
+    // @todo temporary - until we replace old routes
+    router.get('/sfu-test', (_, res) => {
+        const roomId = roomService.generateRandomRoomId();
+        return res.redirect(`/sfu-test/${roomId}`);
+    });
+
+    // @todo temporary - until we replace old routes
+    // a new visitor gets a fresh room
+    router.get('/sfu-test/:room', (req, res) => {
+        return res.render('room/sfu-test', {
+            roomId: req.params.room,
+            peerPort,
+            iceServers: JSON.stringify(iceServers),
+        });
     });
 
     // Users join the :room room id

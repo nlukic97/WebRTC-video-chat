@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Zoom clone</title>
+        <link rel="stylesheet" href="/style.css?v=25556" />
+
+        <script src="/socket.io/socket.io.js"></script>
+
+        <!-- @todo - see to import peerjs, and fontawesome fron nodemodules, not cdn -->
+        <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+        <script
+            src="https://kit.fontawesome.com/279db593be.js"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            const ROOM_ID = '<%= roomId %>';
+            const PEER_PORT = '<%= peerPort %>';
+            const iceServers = JSON.parse('<%- iceServers %>');
+        </script>
+    </head>
+    <body>
+        <div id="main">
+            <a
+                href="https://github.com/nlukic97/peerJs-videoChat"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <i class="fab fa-github"></i> nlukic97</a
+            >
+            <div id="canvas">
+                <div id="video-grid"></div>
+                <div id="join-btn" class="text-center">
+                    <button>Join Call</button>
+                </div>
+            </div>
+            <div id="buttons" class="hidden">
+                <div id="toggleAudio"><i class="fas fa-microphone"></i></div>
+                <div id="videoOptions">
+                    <div id="toggleVideo"><i class="fas fa-video"></i></div>
+                    <div id="shareScreen">
+                        <i class="far fa-newspaper red"></i>
+                    </div>
+                </div>
+                <div id="destroyPeer">Exit call</div>
+            </div>
+        </div>
+        <script type="module" src="/sfu-script.js"></script>
+        <!-- So we defined the static files of the server so we can use it here-->
+    </body>
+</html>

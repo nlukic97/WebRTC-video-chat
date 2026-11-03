@@ -8,7 +8,7 @@ import { ENV, HOST, PEER_PORT, PORT, useHttps } from './config/env.ts';
 import { createSocketServer } from './infra/socket.server.ts';
 import { createRoomRouter } from './domains/room/room.routes.ts';
 import { registerRoomSocket } from './domains/room/room.socket.ts';
-import { initMediasoup } from './infra/mediasoup.server.ts';
+// import { initMediasoup } from './infra/mediasoup.server.ts';
 import { createRoomService } from './domains/room/room.service.ts';
 // import { getMemoryUsageMessage, getCpuUsageMessage } from "./lib/LogMemoryUsage.ts";
 
@@ -34,7 +34,7 @@ const io = createSocketServer(httpServer);
 // mediasoup
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { worker, webRtcServer } = await initMediasoup(Log);
+// const { worker, webRtcServer } = await initMediasoup(Log);
 
 // set up views
 app.set('view engine', 'ejs');

@@ -11,7 +11,8 @@
         "eslint": "eslint",
         "eslint:fix": "eslint . --fix",
         "prettier": "prettier . --check",
-        "prettier:fix": "prettier . --write"
+        "prettier:fix": "prettier . --write",
+        "build:client": "./node_modules/.bin/esbuild ./src/client/sfu-script.ts --bundle --outfile=./src/views/sfu-script.js --watch"
     },
     "keywords": [],
     "author": "",
@@ -19,8 +20,10 @@
     "dependencies": {
         "dotenv": "^16.5.0",
         "ejs": "^3.1.10",
+        "esbuild": "^0.28.2",
         "express": "^5.1.0",
         "mediasoup": "^3.32.1",
+        "mediasoup-client": "^3.26.0",
         "peer": "^1.0.2",
         "socket.io": "^4.8.1",
         "uuid": "^11.1.0"

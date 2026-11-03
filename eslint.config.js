@@ -4,6 +4,7 @@ import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
+    { ignores: ['src/views/sfu-script.js'] },
     js.configs.recommended,
     ...tseslint.configs.recommended,
     eslintConfigPrettier,
