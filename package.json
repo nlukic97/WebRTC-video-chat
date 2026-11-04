@@ -5,6 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
+        "test": "node --test \"src/**/*.test.ts\"",
         "start": "node ./src/server.ts",
         "dev": "node --watch-path=./src ./src/server.ts",
         "typecheck": "tsc",
