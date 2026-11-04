@@ -1,4 +1,4 @@
-import type { Namespace } from 'socket.io';
+import type { Namespace, Socket } from 'socket.io';
 import type Logger from '../../lib/Log.ts';
 import type {
     ClientToServerEvents,
@@ -16,7 +16,10 @@ export const registerRoomSocket = (
     io: Namespace<ClientToServerEvents, ServerToClientEvents>,
     { log, roomService }: RoomSocketDeps
 ) => {
-    const handleJoinRoom = async (roomId: string, socket: RoomSocket) => {
+    const handleJoinRoom = async (
+        roomId: string,
+        socket: Socket<ClientToServerEvents, ServerToClientEvents>
+    ) => {
         log.info(`Socket ${socket.id} has entering room ${roomId}.`);
 
         try {
@@ -38,9 +41,13 @@ export const registerRoomSocket = (
 
             // @audit-info line
             const room = await roomService.getRoom(roomId);
-            if (room) {
-                log.info(`Room ${roomId} size: ${room.users.size}`);
+            if (!room) {
+                throw Error('Room not found');
             }
+
+            socket.emit('rtpCapabilities', room.router.rtpCapabilities);
+
+            log.info(`Room ${roomId} size: ${room.users.size}`);
         } catch (err) {
             console.error(err);
             // @audit-issue what happens if there is an error, do we sent back the user info about it?
@@ -85,6 +92,7 @@ export const registerRoomSocket = (
         );
 
         socket.on('joinRoom', (roomId) => handleJoinRoom(roomId, socket));
+
         socket.on('leaveRoom', () => socket.emit('forceDisconnect'));
     });
 };

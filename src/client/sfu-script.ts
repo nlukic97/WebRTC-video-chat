@@ -109,6 +109,12 @@ const connect = () => {
 
             socket.emit('joinRoom', roomId);
 
+            socket.on('rtpCapabilities', (rtpCapabilities) => {
+                // @todo do something with RTP capabilities
+                // eslint-disable-next-line no-console
+                console.log('received rtp capabilities', rtpCapabilities);
+            });
+
             //removing video of user who has disconnected from websocket
             socket.on('removeUserVideo', (peerId) =>
                 removeVideoElement(peerId)
