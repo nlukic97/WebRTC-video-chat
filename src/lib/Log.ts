@@ -35,7 +35,7 @@ export default class Logger {
     };
     constructor(env: string) {
         if (env !== 'dev' && env !== 'production') {
-            throw new Error('ENV is not set correctly.');
+            throw Error('ENV is not set correctly.');
         }
         this.env = env;
         this.logFilePath = path.resolve('./logs/node.log');

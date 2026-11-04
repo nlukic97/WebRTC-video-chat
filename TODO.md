@@ -6,7 +6,10 @@ Implement the mediasoup sfu to support up to 8 video participants per room.
 
 ## TODO TASKS
 
-1. first user who joins a room by id will create a room (router)
+1. ✅ first user who joins a room by id will create a room (router)
+
+- last user to leave will hav e the room (and its router) deleted
+
 2. make server send rtpCapabilities to client
 3. create mediasoup device, then load with rtpCapabilities
 4. create a send transport for producing, and a receive transport for consuming

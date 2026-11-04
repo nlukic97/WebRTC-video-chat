@@ -2,8 +2,8 @@ import type { Server, Socket } from 'socket.io';
 
 // Events browser sends to the server
 export interface ClientToServerEvents {
-    joinRoom: (roomId: string, peerId: string) => void;
-    peerLeft: (peerId: string) => void;
+    joinRoom: (roomId: string) => void;
+    leaveRoom: (peerId: string) => void;
 }
 
 // Events server sends to the browser

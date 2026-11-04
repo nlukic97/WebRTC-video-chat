@@ -79,7 +79,7 @@ const roomRouterV2 = createRoomRouterV2({
     roomService: roomServiceV2,
 });
 app.use(roomRouterV2);
-registerRoomSocketV2(io.of('/v2'), { log: Log });
+registerRoomSocketV2(io.of('/v2'), { log: Log, roomService: roomServiceV2 });
 
 // 404 route
 app.use((_, res) => res.status(404).send('404 Not Found'));
