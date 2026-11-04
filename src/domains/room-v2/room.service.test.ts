@@ -1,111 +1,126 @@
 // src/domains/room-v2/room.service.test.ts
-import { test } from 'node:test';
+import { beforeEach, describe, test, mock } from 'node:test';
 import assert from 'node:assert/strict';
-import { createRoomService } from './room.service.ts';
+import { createRoomService, type IRoomService } from './room.service.ts';
+import { mediaCodecs } from '../../config/mediasoup.ts';
+import type { types as mediasoupTypes } from 'mediasoup';
 
 const users = {
-    Alice: 'Alice',
-    Bob: 'Bob',
+    ALICE: 'Alice',
+    BOB: 'Bob',
 };
 
-const routerStringTest = 'roomRouterGoesHere';
+describe('RoomService tests', () => {
+    let roomService: IRoomService;
 
-test('creating room creates expected object', () => {
-    const roomService = createRoomService();
+    const close = mock.fn();
+    const fakeRouter = { close };
 
-    roomService.createRoom('1', users.Alice);
-    const room = roomService.getRoom('1');
-    assert.equal(room?.roomId, '1');
-    assert.equal(room?.router, routerStringTest);
-    assert.equal(room?.users.has(users.Alice), true);
-});
+    const fakeWorker = { createRouter: async () => fakeRouter };
 
-test('User can create room and is first member', () => {
-    const roomService = createRoomService();
+    beforeEach(() => {
+        close.mock.resetCalls(); // must be here
 
-    // room and user don't exist
-    assert.equal(roomService.getRoom('1'), null);
-    assert.equal(roomService.getUser('1', users.Alice), null);
+        roomService = createRoomService({
+            worker: fakeWorker as unknown as mediasoupTypes.Worker,
+            // webRtcServer,
+            mediaCodecs,
+        });
+    });
 
-    // creating room
-    assert.equal(roomService.createRoom('1', users.Alice), true);
+    test('creating room creates expected object', async () => {
+        await roomService.createRoom('1', users.ALICE);
+        const room = await roomService.getRoom('1');
 
-    assert.notEqual(roomService.getRoom('1'), null);
-    assert.notEqual(roomService.getUser('1', users.Alice), null);
-});
+        assert.equal(room?.roomId, '1');
+        assert.equal(room?.router, fakeRouter);
+        assert.equal(room?.users.has(users.ALICE), true);
+    });
 
-test('Room with an id can only be created once', () => {
-    const roomService = createRoomService();
+    test('User can create room and is first member', async () => {
+        // room and user don't exist
+        assert.equal(await roomService.getRoom('1'), null);
+        assert.equal(await roomService.getUser('1', users.ALICE), null);
 
-    // room does not exist
-    assert.equal(roomService.getRoom('1'), null);
+        // creating room
+        assert.equal(await roomService.createRoom('1', users.ALICE), true);
 
-    // creating room
-    assert.equal(roomService.createRoom('1', users.Alice), true);
-    assert.notEqual(roomService.getRoom('1'), null);
+        assert.notEqual(await roomService.getRoom('1'), null);
+        assert.notEqual(await roomService.getUser('1', users.ALICE), null);
+    });
 
-    // unable to create room
-    assert.equal(roomService.createRoom('1', users.Bob), false);
+    test('Room with an id can only be created once', async () => {
+        // room does not exist
+        assert.equal(await roomService.getRoom('1'), null);
 
-    // Bob is not in the room, Alice still is
-    assert.equal(roomService.getUser('1', users.Bob), null);
-    assert.notEqual(roomService.getUser('1', users.Alice), null);
-});
+        // creating room
+        assert.equal(await roomService.createRoom('1', users.ALICE), true);
+        assert.notEqual(await roomService.getRoom('1'), null);
 
-test('joining room that does not exist returns false', () => {
-    const roomService = createRoomService();
-    assert.equal(roomService.joinRoom('1', users.Bob), false);
-});
+        // unable to create room
+        assert.equal(await roomService.createRoom('1', users.BOB), false);
 
-test('same user can not join the same room if they are already in it', () => {
-    const roomService = createRoomService();
+        // Bob is not in the room, Alice still is
+        assert.equal(await roomService.getUser('1', users.BOB), null);
+        assert.notEqual(await roomService.getUser('1', users.ALICE), null);
+    });
 
-    // Alice creates and joins room 1
-    assert.equal(roomService.createRoom('1', users.Alice), true);
+    test('joining room that does not exist returns false', async () => {
+        assert.equal(await roomService.joinRoom('1', users.BOB), false);
+    });
 
-    // Alice tries to join same room again
-    assert.equal(roomService.joinRoom('1', users.Alice), false);
+    test('same user can not join the same room if they are already in it', async () => {
+        // Alice creates and joins room 1
+        assert.equal(await roomService.createRoom('1', users.ALICE), true);
 
-    // Bob joins room
-    assert.equal(roomService.joinRoom('1', users.Bob), true);
+        // Alice tries to join same room again
+        assert.equal(await roomService.joinRoom('1', users.ALICE), false);
 
-    // Bob can't re-join room
-    assert.equal(roomService.joinRoom('1', users.Bob), false);
-});
+        // Bob joins room
+        assert.equal(await roomService.joinRoom('1', users.BOB), true);
 
-test('user can leave room after joining', () => {
-    const roomService = createRoomService();
+        // Bob can't re-join room
+        assert.equal(await roomService.joinRoom('1', users.BOB), false);
+    });
 
-    // user creates room (and joins is), and Bob joins - 2 users in room
-    assert.equal(roomService.createRoom('1', users.Alice), true);
-    assert.equal(roomService.joinRoom('1', users.Bob), true);
-    assert.equal(roomService.getRoom('1')?.users.size, 2);
+    test('user can leave room after joining', async () => {
+        // user creates room (and joins is), and Bob joins - 2 users in room
+        assert.equal(await roomService.createRoom('1', users.ALICE), true);
+        assert.equal(await roomService.joinRoom('1', users.BOB), true);
+        const room = await roomService.getRoom('1');
+        assert.equal(room?.users.size, 2);
 
-    // Alice leaves room, 1 member left
-    assert.equal(roomService.leaveRoom('1', users.Alice), true);
-    assert.equal(roomService.getRoom('1')?.users.size, 1);
+        // Alice leaves room, 1 member left
+        assert.equal(await roomService.leaveRoom('1', users.ALICE), true);
 
-    // Bob leaves room, 0 member left
-    assert.equal(roomService.leaveRoom('1', users.Bob), true);
-    assert.equal(roomService.getRoom('1')?.users.size, 0);
-});
+        assert.equal(room?.users.size, 1);
 
-test('room can only be deleted when it exists and all users left', () => {
-    const roomService = createRoomService();
+        // Bob leaves room, 0 member left
+        assert.equal(await roomService.leaveRoom('1', users.BOB), true);
+        assert.equal(room?.users.size, 0);
+    });
 
-    // room can't be deleted if it wasn't made
-    assert.equal(roomService.deleteRoom('1'), false);
+    test('room can only be deleted when it exists and all users left', async () => {
+        // room can't be deleted if it wasn't made
+        assert.equal(await roomService.deleteRoom('1'), false);
 
-    // alice creates room, and is only member
-    assert.equal(roomService.createRoom('1', users.Alice), true);
-    assert.equal(roomService.getRoom('1')?.users.size, 1);
+        // alice creates room, and is only member
+        assert.equal(await roomService.createRoom('1', users.ALICE), true);
+        const room = await roomService.getRoom('1');
+        assert.equal(room?.users.size, 1);
 
-    // deleting room should fail
-    assert.equal(roomService.deleteRoom('1'), false);
+        // deleting room should fail
+        assert.equal(await roomService.deleteRoom('1'), false);
 
-    // alice leaves room, room can be deleted, and will be null
-    roomService.leaveRoom('1', users.Alice);
-    assert.equal(roomService.getRoom('1')?.users.size, 0);
-    assert.equal(roomService.deleteRoom('1'), true);
-    assert.equal(roomService.getRoom('1'), null);
+        // alice leaves room, no users are left, but router not destroyed
+        await roomService.leaveRoom('1', users.ALICE);
+        assert.equal(room?.users.size, 0);
+        assert.equal(close.mock.callCount(), 0); // router not closed yet
+
+        // deleting room
+        assert.equal(await roomService.deleteRoom('1'), true);
+        assert.equal(close.mock.callCount(), 1); // router will be
+
+        assert.equal(await roomService.getRoom('1'), null);
+    });
 });

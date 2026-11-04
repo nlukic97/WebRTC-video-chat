@@ -14,6 +14,7 @@ import { initMediasoup } from './infra/mediasoup.server.ts';
 import { createRoomService } from './domains/room/room.service.ts';
 import { createRoomService as createRoomServiceV2 } from './domains/room-v2/room.service.ts';
 // import { getMemoryUsageMessage, getCpuUsageMessage } from "./lib/LogMemoryUsage.ts";
+import { mediaCodecs } from './config/mediasoup.ts';
 
 const __dirname = import.meta.dirname;
 
@@ -35,9 +36,13 @@ const peerServer = createPeerServer(PEER_PORT, ssl);
 const io = createSocketServer(httpServer);
 
 // mediasoup
-let worker, webRtcServer;
+let worker;
+// webRtcServer; // @todo include later
 try {
-    ({ worker, webRtcServer } = await initMediasoup(Log));
+    ({
+        worker,
+        // webRtcServer // @todo include later
+    } = await initMediasoup(Log));
 } catch (err) {
     Log.error('Error setting up mediasoup');
     console.error(err);
@@ -64,8 +69,12 @@ const roomRouter = createRoomRouter({
 app.use(roomRouter);
 registerRoomSocket(io, { log: Log });
 
-// room v2
-const roomServiceV2 = createRoomServiceV2();
+// room v2 - WIP - will use mediasoup
+const roomServiceV2 = createRoomServiceV2({
+    worker,
+    // webRtcServer, // @todo add later
+    mediaCodecs,
+});
 const roomRouterV2 = createRoomRouterV2({
     roomService: roomServiceV2,
 });
