@@ -11,8 +11,17 @@ import type { CallbackFunction } from 'node:ffi';
 
 // Events browser sends to the server
 export interface ClientToServerEvents {
-    joinRoom: (roomId: string) => void;
-    createWebRtcTransports: (roomId: string) => void;
+    joinRoom: (
+        roomId: string,
+        callback: (rtpCapabilities: mediasoupTypes.RtpCapabilities) => void
+    ) => void;
+    createWebRtcTransports: (
+        roomId: string,
+        callback: (transports: {
+            sendTransportData: TransportOptions;
+            receiveTransportData: TransportOptions;
+        }) => void
+    ) => void;
     transportConnect: (
         {
             roomId,
@@ -39,22 +48,12 @@ export interface ClientToServerEvents {
         },
         callback: CallbackFunction
     ) => void;
-    leaveRoom: (socketId: string) => void;
 }
 
 // Events server sends to the browser
 export interface ServerToClientEvents {
     userConnected: (socketId: string) => void;
-    rtpCapabilities: (rtpCapabilities: mediasoupTypes.RtpCapabilities) => void;
-    webRtcTransportsCreated: ({
-        sendTransportData,
-        receiveTransportData,
-    }: {
-        sendTransportData: TransportOptions;
-        receiveTransportData: TransportOptions;
-    }) => void;
     removeUserVideo: (socketId: string) => void;
-    forceDisconnect: () => void;
 }
 
 // Shortcuts so other files don't repeat the generics

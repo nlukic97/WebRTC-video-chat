@@ -93,7 +93,7 @@ const setHeightOfVideos = () => {
     });
 };
 
-const handleRtpCapabilities = async (rtpCapabilities: RtpCapabilities) => {
+const loadDevice = async (rtpCapabilities: RtpCapabilities) => {
     // audit log
     console.log(`Received rtpCapabilities`, rtpCapabilities);
 
@@ -110,11 +110,6 @@ const handleRtpCapabilities = async (rtpCapabilities: RtpCapabilities) => {
     await device.load({
         routerRtpCapabilities: rtpCapabilities,
     });
-
-    // if device can produce video, get stream and continue
-    if (device.canProduce('video') && device.canProduce('audio')) {
-        socket.emit('createWebRtcTransports', roomId);
-    }
 };
 
 type TransportDataType = {
@@ -199,7 +194,7 @@ const handleWebRtcTransportsCreated = async (transports: {
     }
 };
 
-const connect = () => {
+const connect = async () => {
     const joinBtn = document.querySelector('#join-btn');
     if (!joinBtn) {
         throw Error('JoinBtn element not found');
@@ -222,31 +217,29 @@ const connect = () => {
     }
     buttons.classList.remove('hidden');
 
-    // First client joins room...
-    socket.emit('joinRoom', roomId);
-
-    // ...then we getRtpCapabilities to createWebTransport...
-    socket.on('rtpCapabilities', handleRtpCapabilities);
-
-    // ...then when server creates web transport, we create the transports and start producing
-    socket.on('webRtcTransportsCreated', handleWebRtcTransportsCreated);
-
     //removing video of user who has disconnected from websocket
     // socket.on('removeUserVideo', (socketId) => removeVideoElement(socketId));
-
-    // -DISCONNECT FUNCTION - disconnecting this user from websocket. This will trigger the on.disconnected listener on the server.
-    //this will tell other sockets to remove the video of the user who has just disconnected (video id is the same as the userId)
-    /* socket.on('forceDisconnect', () => {
-        socket.disconnect(); // @todo check if this is ok
-        // eslint-disable-next-line no-console
-        console.log(
-            `You have been disconnected from websocket. The road ends here. `
-        );
-    }); */
 
     socket.on('userConnected', () => {
         console.log('user connected');
     });
+
+    try {
+        // join the room, the server replies with the router's rtpCapabilities
+        const rtpCapabilities = await socket.emitWithAck('joinRoom', roomId);
+        await loadDevice(rtpCapabilities);
+
+        // if device can produce video and audio, create transports and start producing
+        if (device.canProduce('video') && device.canProduce('audio')) {
+            const transports = await socket.emitWithAck(
+                'createWebRtcTransports',
+                roomId
+            );
+            await handleWebRtcTransportsCreated(transports);
+        }
+    } catch (err) {
+        console.error(err);
+    }
 
     //client click to end call and stays in browser
     const destroyPeerBtn = document.getElementById('destroyPeer');
@@ -255,8 +248,8 @@ const connect = () => {
     }
 
     destroyPeerBtn.addEventListener('click', () => {
-        socket.send('leaveRoom'); // tell server you are leaving
-        // socket.disconnect(); // maybe this is better? @todo
+        // server's 'disconnect' handler removes us from the room and tells the others
+        socket.disconnect();
 
         videoProducer.close();
         audioProducer.close();

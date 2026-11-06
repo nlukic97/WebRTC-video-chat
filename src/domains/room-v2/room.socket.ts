@@ -24,7 +24,8 @@ export const registerRoomSocket = (
 ) => {
     const handleJoinRoom = async (
         roomId: string,
-        socket: Socket<ClientToServerEvents, ServerToClientEvents>
+        socket: Socket<ClientToServerEvents, ServerToClientEvents>,
+        callback: Parameters<ClientToServerEvents['joinRoom']>[1]
     ) => {
         log.info(`Socket ${socket.id} has entering room ${roomId}.`);
 
@@ -51,7 +52,7 @@ export const registerRoomSocket = (
                 throw Error('Room not found');
             }
 
-            socket.emit('rtpCapabilities', room.router.rtpCapabilities);
+            callback(room.router.rtpCapabilities);
 
             // log.info(`Room ${roomId} size: ${room.users.size}`);
         } catch (err) {
@@ -65,7 +66,8 @@ export const registerRoomSocket = (
 
     const handleCreateWebRtcTransports = async (
         roomId: string,
-        socket: Socket<ClientToServerEvents, ServerToClientEvents>
+        socket: Socket<ClientToServerEvents, ServerToClientEvents>,
+        callback: Parameters<ClientToServerEvents['createWebRtcTransports']>[1]
     ) => {
         log.info(
             `Socket ${socket.id} requesting WebRtcTransport creation for room ${roomId}.`
@@ -102,7 +104,7 @@ export const registerRoomSocket = (
                 dtlsParameters: receiveTransport.dtlsParameters,
             };
 
-            socket.emit('webRtcTransportsCreated', {
+            callback({
                 sendTransportData: sendTranportData,
                 receiveTransportData: receiveTranportData,
             });
@@ -221,10 +223,12 @@ export const registerRoomSocket = (
             `Socket ${socket.id} has connected, but has not requested to join any rooms.`
         );
 
-        socket.on('joinRoom', (roomId) => handleJoinRoom(roomId, socket));
+        socket.on('joinRoom', (roomId, callback) =>
+            handleJoinRoom(roomId, socket, callback)
+        );
 
-        socket.on('createWebRtcTransports', (roomId) =>
-            handleCreateWebRtcTransports(roomId, socket)
+        socket.on('createWebRtcTransports', (roomId, callback) =>
+            handleCreateWebRtcTransports(roomId, socket, callback)
         );
 
         socket.on('transportConnect', (data, callback) => {
@@ -234,7 +238,5 @@ export const registerRoomSocket = (
         socket.on('makeProducer', (data, callback) => {
             handleMakeProducer(socket, data, callback);
         });
-
-        socket.on('leaveRoom', () => socket.emit('forceDisconnect'));
     });
 };
