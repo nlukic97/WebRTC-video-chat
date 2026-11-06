@@ -18,3 +18,12 @@ if (!process.env.ENV) {
     throw Error('ENV env variable specified incorrectly');
 }
 export const ENV = process.env.ENV;
+
+// check for MEDIASOUP_ANNOUNCED_ADDRESS
+if (!process.env.MEDIASOUP_ANNOUNCED_ADDRESS) {
+    throw Error(
+        'MEDIASOUP_ANNOUNCED_ADDRESS env variable specified incorrectly'
+    );
+}
+export const MEDIASOUP_ANNOUNCED_ADDRESS =
+    process.env.MEDIASOUP_ANNOUNCED_ADDRESS;

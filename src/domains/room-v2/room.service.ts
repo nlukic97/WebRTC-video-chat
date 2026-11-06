@@ -1,5 +1,20 @@
 import { v6 as uuidv6 } from 'uuid';
 import type { types as mediasoupTypes } from 'mediasoup';
+import type { Producer } from 'mediasoup/types';
+
+type TransportsType = {
+    sendTransport: mediasoupTypes.WebRtcTransport | undefined;
+    receiveTransport: mediasoupTypes.WebRtcTransport | undefined;
+};
+
+type UserType = {
+    userId: string;
+    transports: TransportsType;
+    producers: {
+        video: Producer | undefined;
+        audio: Producer | undefined;
+    };
+};
 
 type RoomType = {
     roomId: string;
@@ -7,17 +22,23 @@ type RoomType = {
     users: Map<string, UserType>;
 };
 
-type UserType = { userId: string; transports: string[] };
-
 type RoomServiceArgs = {
     worker: mediasoupTypes.Worker;
-    // webRtcServer: mediasoupTypes.WebRtcServer;
+    webRtcServer: mediasoupTypes.WebRtcServer;
     mediaCodecs: mediasoupTypes.RouterRtpCodecCapability[];
 };
 
 export interface IRoomService {
     generateRandomRoomId: () => string;
     createRoom: (roomId: string, userId: string) => Promise<boolean>;
+    createWebRtcTransports: (
+        roomId: string,
+        userId: string
+    ) => Promise<TransportsType | null>;
+    getWebRtcTransports: (
+        roomId: string,
+        userId: string
+    ) => Promise<TransportsType | null>;
     getRoom: (roomId: string) => Promise<RoomType | null>;
     getUser: (roomId: string, userId: string) => Promise<UserType | null>;
     deleteRoom: (roomId: string) => Promise<boolean>;
@@ -25,21 +46,29 @@ export interface IRoomService {
     leaveRoom: (roomId: string, userId: string) => Promise<boolean>;
 }
 
+const MAX_USERS_PER_ROOM = 8; // @todo potentially configurable as the game goes alog
+
 export const createRoomService = ({
     worker,
-    // webRtcServer,
+    webRtcServer,
     mediaCodecs,
 }: RoomServiceArgs): IRoomService => {
     /** Map that stores the rooms.
      * Key: roomId, Value: roomData, currently map of users)
-     * @todo will need to update this to contain everything needed
      */
     const rooms = new Map<string, Promise<RoomType>>();
 
     const _createNewUserData = (userId: string): UserType => {
         return {
             userId: userId,
-            transports: ['send', 'receive'], // @todo should be real transport array
+            transports: {
+                sendTransport: undefined,
+                receiveTransport: undefined,
+            },
+            producers: {
+                video: undefined,
+                audio: undefined,
+            },
         };
     };
 
@@ -53,7 +82,6 @@ export const createRoomService = ({
         };
     };
 
-    //@todo change return type to uuidv6 if possible via branded types
     const generateRandomRoomId = (): string => {
         return uuidv6();
     };
@@ -79,11 +107,59 @@ export const createRoomService = ({
             const room = await roomPromise;
             room.users.set(userId, newUserData);
 
+            console.log(`Room size`, room.users.size);
+
             return true;
         } catch (err) {
             rooms.delete(roomId);
             throw err;
         }
+    };
+
+    const createWebRtcTransports = async (
+        roomId: string,
+        userId: string
+    ): Promise<TransportsType | null> => {
+        const room = await getRoom(roomId);
+        if (!room) {
+            return null;
+        }
+
+        const user = room.users.get(userId);
+        if (!user) {
+            return null;
+        }
+
+        const sendTransport = await room.router.createWebRtcTransport({
+            webRtcServer,
+            enableUdp: true,
+            enableTcp: false,
+        });
+
+        const receiveTransport = await room.router.createWebRtcTransport({
+            webRtcServer,
+            enableUdp: true,
+            enableTcp: false,
+        });
+
+        user.transports.sendTransport = sendTransport;
+        user.transports.receiveTransport = receiveTransport;
+
+        return { sendTransport, receiveTransport };
+    };
+
+    const getWebRtcTransports = async (
+        roomId: string,
+        userId: string
+    ): Promise<TransportsType | null> => {
+        const user = await getUser(roomId, userId);
+        if (!user) {
+            return null;
+        }
+
+        const transports = user.transports;
+
+        return transports;
     };
 
     const getRoom = async (roomId: string): Promise<RoomType | null> => {
@@ -103,7 +179,6 @@ export const createRoomService = ({
         return room.users.get(userId) ?? null;
     };
 
-    // returns true if room was created, false if not (meaning it already exists)
     const deleteRoom = async (roomId: string): Promise<boolean> => {
         const room = await rooms.get(roomId);
 
@@ -127,9 +202,16 @@ export const createRoomService = ({
             return false;
         }
 
+        // Not allowing more users than the
+        if (room.users.size + 1 > MAX_USERS_PER_ROOM) {
+            return false;
+        }
+
         const newUserData = _createNewUserData(userId);
 
         room.users.set(userId, newUserData);
+
+        console.log(`Room size`, room.users.size);
         return true;
     };
 
@@ -152,6 +234,8 @@ export const createRoomService = ({
     return {
         generateRandomRoomId,
         createRoom,
+        createWebRtcTransports,
+        getWebRtcTransports,
         getRoom,
         getUser,
         deleteRoom,

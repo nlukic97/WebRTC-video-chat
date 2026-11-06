@@ -4,7 +4,8 @@ import type { types as mediasoupTypes } from 'mediasoup';
 import type Logger from '../lib/Log.ts';
 
 export const initMediasoup = async (
-    log: Logger
+    log: Logger,
+    announcedAddress: string // address browsers connect to (LAN IP in dev, public IP in prod)
 ): Promise<{
     worker: mediasoupTypes.Worker;
     webRtcServer: mediasoupTypes.WebRtcServer;
@@ -18,13 +19,13 @@ export const initMediasoup = async (
             {
                 protocol: 'udp',
                 ip: '0.0.0.0',
-                announcedAddress: '127.0.0.1', // @todo might need to remove later in prod
+                announcedAddress,
                 port: 3001, // @todo env variable this
             },
             {
                 protocol: 'tcp',
                 ip: '0.0.0.0',
-                announcedAddress: '127.0.0.1', // @todo might need to remove later in prod
+                announcedAddress,
                 port: 3001, // @todo env variable this
             },
         ],

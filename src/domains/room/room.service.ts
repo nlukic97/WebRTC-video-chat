@@ -5,7 +5,6 @@ export interface IRoomService {
 }
 
 export const createRoomService = (): IRoomService => {
-    //@todo change return type to uuidv6 if possible via branded types
     const generateRandomRoomId = (): string => {
         return uuidv6();
     };

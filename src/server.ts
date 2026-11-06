@@ -4,7 +4,14 @@ import { readFileSync } from 'fs';
 import { createHttpServer } from './infra/http.server.ts';
 import { createPeerServer } from './infra/peer.server.ts';
 import { iceServers as iceServersList } from './config/iceServers.ts';
-import { ENV, HOST, PEER_PORT, PORT, useHttps } from './config/env.ts';
+import {
+    ENV,
+    HOST,
+    MEDIASOUP_ANNOUNCED_ADDRESS,
+    PEER_PORT,
+    PORT,
+    useHttps,
+} from './config/env.ts';
 import { createSocketServer } from './infra/socket.server.ts';
 import { createRoomRouter } from './domains/room/room.routes.ts';
 import { createRoomRouter as createRoomRouterV2 } from './domains/room-v2/room.routes.ts';
@@ -37,12 +44,12 @@ const io = createSocketServer(httpServer);
 
 // mediasoup
 let worker;
-// webRtcServer; // @todo include later
+let webRtcServer;
 try {
-    ({
-        worker,
-        // webRtcServer // @todo include later
-    } = await initMediasoup(Log));
+    ({ worker, webRtcServer } = await initMediasoup(
+        Log,
+        MEDIASOUP_ANNOUNCED_ADDRESS
+    ));
 } catch (err) {
     Log.error('Error setting up mediasoup');
     console.error(err);
@@ -72,7 +79,7 @@ registerRoomSocket(io, { log: Log });
 // room v2 - WIP - will use mediasoup
 const roomServiceV2 = createRoomServiceV2({
     worker,
-    // webRtcServer, // @todo add later
+    webRtcServer,
     mediaCodecs,
 });
 const roomRouterV2 = createRoomRouterV2({

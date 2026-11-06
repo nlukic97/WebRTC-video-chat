@@ -6,6 +6,12 @@ import type {
     ServerToClientEvents,
 } from './room.events.ts';
 import type { IRoomService } from './room.service.ts';
+import type {
+    AppData,
+    DtlsParameters,
+    MediaKind,
+    RtpParameters,
+} from 'mediasoup/types';
 
 type RoomSocketDeps = {
     log: Logger;
@@ -47,7 +53,7 @@ export const registerRoomSocket = (
 
             socket.emit('rtpCapabilities', room.router.rtpCapabilities);
 
-            log.info(`Room ${roomId} size: ${room.users.size}`);
+            // log.info(`Room ${roomId} size: ${room.users.size}`);
         } catch (err) {
             console.error(err);
             // @audit-issue what happens if there is an error, do we sent back the user info about it?
@@ -55,6 +61,133 @@ export const registerRoomSocket = (
                 error: 'Unable to create or join room',
             }); */
         }
+    };
+
+    const handleCreateWebRtcTransports = async (
+        roomId: string,
+        socket: Socket<ClientToServerEvents, ServerToClientEvents>
+    ) => {
+        log.info(
+            `Socket ${socket.id} requesting WebRtcTransport creation for room ${roomId}.`
+        );
+
+        try {
+            const transports = await roomService.createWebRtcTransports(
+                roomId,
+                socket.id
+            );
+            if (!transports) {
+                throw Error('transport not found');
+            }
+
+            const sendTransport = transports.sendTransport;
+            const receiveTransport = transports.receiveTransport;
+            if (!sendTransport || !receiveTransport) {
+                throw new Error(
+                    'Either send or receive transports are not found to sent to client'
+                );
+            }
+
+            const sendTranportData = {
+                id: sendTransport.id,
+                iceParameters: sendTransport.iceParameters,
+                iceCandidates: sendTransport.iceCandidates,
+                dtlsParameters: sendTransport.dtlsParameters,
+            };
+
+            const receiveTranportData = {
+                id: receiveTransport.id,
+                iceParameters: receiveTransport.iceParameters,
+                iceCandidates: receiveTransport.iceCandidates,
+                dtlsParameters: receiveTransport.dtlsParameters,
+            };
+
+            socket.emit('webRtcTransportsCreated', {
+                sendTransportData: sendTranportData,
+                receiveTransportData: receiveTranportData,
+            });
+
+            log.info(`Room ${roomId} has webRtcTransport created`);
+        } catch (err) {
+            console.error(err);
+            // @audit-issue what happens if there is an error
+            /* socket.emit('errorJoiningRoom', {
+                error: 'Unable to create webRtcTransport',
+            }); */
+        }
+    };
+
+    const handleTransportConnect = async (
+        socket: RoomSocket,
+        data: {
+            roomId: string;
+            transportId: string;
+            dtlsParameters: DtlsParameters;
+        },
+        callback: CallableFunction
+    ): Promise<boolean> => {
+        // @audit-issue move this to service method and fix this method up a bit
+        const room = await roomService.getRoom(data.roomId);
+        if (!room) {
+            return false;
+        }
+
+        await room.users.get(socket.id)?.transports.sendTransport?.connect({
+            dtlsParameters: { ...data.dtlsParameters },
+        });
+
+        callback();
+
+        return true;
+    };
+
+    const handleMakeProducer = async (
+        socket: RoomSocket,
+        data: {
+            roomId: string;
+            parameters: {
+                kind: MediaKind;
+                rtpParameters: RtpParameters;
+                appData: AppData;
+            };
+        },
+        callback: CallableFunction
+    ): Promise<boolean> => {
+        // @audit-issue move this to service method and fix this method up a bit
+        const room = await roomService.getRoom(data.roomId);
+        if (!room) {
+            return false;
+        }
+
+        const user = room.users.get(socket.id);
+
+        // @todo handle this differentyl
+        if (!user) {
+            return false;
+        }
+
+        // creating users producer
+        // @todo use method for this
+        const producer = await user?.transports.sendTransport?.produce({
+            kind: data.parameters.kind,
+            rtpParameters: data.parameters.rtpParameters,
+        });
+
+        // @todo handle error in cabblack properly
+        if (!producer) {
+            return false;
+        }
+
+        // storing producers in the user object
+        if (producer?.kind === 'video') {
+            user.producers.video = producer;
+        } else if (producer?.kind === 'audio') {
+            user.producers.audio = producer;
+        }
+
+        callback({ id: producer.id });
+
+        return true;
     };
 
     const handleDisconnect = async (roomId: string, socket: RoomSocket) => {
@@ -76,13 +209,10 @@ export const registerRoomSocket = (
                 log.info(`Room ${roomId} has NOT been deleted`);
             }
 
-            socket.to(roomId).emit('removeUserVideo', socket.id); // @todo should this be here?
+            socket.to(roomId).emit('removeUserVideo', socket.id); // @todo should this be here? Also might need to handle cleanup on server and with usesr
         } catch (err) {
             console.error(err);
             // @todo what happens if there is an error
-            /* socket.emit('errorJoiningRoom', {
-                error: 'Unable to create or join room',
-            }); */
         }
     };
 
@@ -92,6 +222,18 @@ export const registerRoomSocket = (
         );
 
         socket.on('joinRoom', (roomId) => handleJoinRoom(roomId, socket));
+
+        socket.on('createWebRtcTransports', (roomId) =>
+            handleCreateWebRtcTransports(roomId, socket)
+        );
+
+        socket.on('transportConnect', (data, callback) => {
+            handleTransportConnect(socket, data, callback);
+        });
+
+        socket.on('makeProducer', (data, callback) => {
+            handleMakeProducer(socket, data, callback);
+        });
 
         socket.on('leaveRoom', () => socket.emit('forceDisconnect'));
     });
